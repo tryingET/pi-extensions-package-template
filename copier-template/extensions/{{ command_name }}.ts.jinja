@@ -1,0 +1,12 @@
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+
+export default function (pi: ExtensionAPI) {
+  pi.registerCommand("{{ command_name }}", {
+    description: "Run the {{ command_name }} scaffold command",
+    handler: async (_args, ctx) => {
+      if (ctx.hasUI) {
+        ctx.ui.notify("{{ command_name }} scaffold ready", "info");
+      }
+    },
+  });
+}

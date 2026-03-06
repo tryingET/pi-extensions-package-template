@@ -1,0 +1,55 @@
+{
+  "name": "@tryinget/pi-extensions-template_copier",
+  "version": "0.5.0",
+  "description": "Copier template + CLI for bootstrapping production-ready pi extension repositories",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tryingET/pi-extensions-template_copier.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tryingET/pi-extensions-template_copier/issues"
+  },
+  "homepage": "https://github.com/tryingET/pi-extensions-template_copier#readme",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "copier-template",
+    "scaffold"
+  ],
+  "bin": {
+    "new-pi-extension-repo": "bin/new-pi-extension-repo.mjs",
+    "pi-extensions-template_copier": "bin/new-pi-extension-repo.mjs",
+    "npm-bootstrap-publish": "bin/npm-bootstrap-publish.mjs"
+  },
+  "files": [
+    "bin/new-pi-extension-repo.mjs",
+    "bin/npm-bootstrap-publish.mjs",
+    "copier-template",
+    "copier-template/.gitignore",
+    "copier-template-monorepo-package",
+    "copier-template-monorepo-package/.gitignore",
+    "copier.yml",
+    "new-pi-extension-repo.sh",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "bash ./scripts/template-guardrails.sh",
+    "check:full": "bash ./scripts/template-guardrails.sh && bash ./scripts/smoke-test-template.sh && bash ./scripts/generated-contract-test.sh && bash ./scripts/idempotency-test-template.sh && SCAFFOLD_MODE=monorepo-package bash ./scripts/smoke-test-template.sh && SCAFFOLD_MODE=monorepo-package bash ./scripts/generated-contract-test.sh && SCAFFOLD_MODE=monorepo-package bash ./scripts/idempotency-test-template.sh",
+    "check:pinned": "bash ./scripts/check-pinned-deps.sh",
+    "release:check": "bash ./scripts/release-check-template.sh",
+    "release:check:quick": "SKIP_COPIER_SMOKE=1 bash ./scripts/release-check-template.sh"
+  },
+  "dependencies": {
+    "@biomejs/biome": "^2.4.4"
+  }
+}

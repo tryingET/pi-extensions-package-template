@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "required_files": [
+    ".copier-answers.yml",
+    "README.md",
+    "LICENSE",
+    "AGENTS.md",
+    "biome.jsonc",
+    ".vscode/settings.json",
+    "package.json",
+    "extensions/{{command_name}}.ts",
+    ".github/workflows/ci.yml",
+    ".github/workflows/release-check.yml",
+    ".github/workflows/release-please.yml",
+    ".github/workflows/publish.yml",
+    ".github/workflows/vouch-check-pr.yml",
+    ".github/workflows/vouch-manage.yml",
+    "docs/org/operating_model.md",
+    "docs/tech-stack.local.md",
+    "policy/stack-lane.json",
+    "scripts/release-check.sh",
+    "scripts/validate-structure.sh",
+    "scripts/validate-structure.mjs",
+    "scripts/quality-gate.sh",
+    ".githooks/pre-commit",
+    ".githooks/pre-push",
+    ".pi/prompts/commit.md"
+  ],
+  "forbidden_paths": [
+    "copier-template",
+    "copier.yml",
+    "new-pi-extension-repo.sh",
+    "scripts/template-guardrails.sh",
+    "scripts/smoke-test-template.sh",
+    "scripts/generated-contract-test.sh",
+    ".github/workflows/template-guardrails.yml"
+  ],
+  "forbidden_globs": [
+    "**/*.jinja"
+  ],
+  "forbidden_content_patterns": [
+    "(?<!\\$)\\{\\{\\s*[^{}\\n]+\\s*\\}\\}",
+    "\\{username\\}",
+    "\\{repo\\}",
+    "\\{discordInvite\\}",
+    "\\{@twitter\\}",
+    "<repo-name>",
+    "<command-name>",
+    "@your-github-handle"
+  ],
+  "content_scan_exclude_paths": [
+    "scripts/validate-structure.sh",
+    "scripts/sync-to-live.sh"
+  ]
+}

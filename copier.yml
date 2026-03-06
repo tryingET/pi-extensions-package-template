@@ -1,0 +1,79 @@
+_min_copier_version: "9.0.0"
+_subdirectory: "{{ 'copier-template-monorepo-package' if scaffold_mode == 'monorepo-package' else 'copier-template' }}"
+_templates_suffix: ".jinja"
+_answers_file: ".copier-answers.yml"
+
+scaffold_mode:
+  type: str
+  default: "standalone-repo"
+  choices:
+    - "standalone-repo"
+    - "monorepo-package"
+  help: "Scaffold mode: full standalone repo or package-only output for monorepos"
+
+npm_org:
+  type: str
+  default: "tryinget"
+  help: "npm org/username for scoped package name (e.g., @tryinget/pi-xyz)"
+
+repo_name:
+  type: str
+  help: "Repository/package name (directory and package name, without scope)"
+
+command_name:
+  type: str
+  default: "{{ repo_name }}"
+  help: "Primary extension command name"
+
+github_maintainer:
+  type: str
+  default: "tryingET"
+  help: "GitHub handle for CODEOWNERS/VOUCHED and repository metadata"
+
+workspace_relative_path:
+  type: str
+  default: "packages/{{ repo_name }}"
+  help: "Workspace-relative package path (used in monorepo package metadata/docs)"
+
+release_component_key:
+  type: str
+  default: "{{ repo_name }}"
+  help: "release-please component key for package-level releases in monorepos"
+
+release_config_mode:
+  type: str
+  default: "component"
+  choices:
+    - "component"
+    - "none"
+  help: "Release metadata mode for monorepo packages"
+
+monorepo_repo_name:
+  type: str
+  default: "pi-extensions"
+  help: "Monorepo repository name used in package repository.url metadata"
+
+_tasks:
+  - "chmod +x scripts/sync-to-live.sh scripts/docs-list.sh scripts/release-check.sh scripts/validate-structure.sh scripts/validate-structure.mjs scripts/quality-gate.sh"
+  - "sh -c 'if [ \"{{ scaffold_mode }}\" = \"standalone-repo\" ]; then chmod +x scripts/install-hooks.sh .githooks/pre-commit .githooks/pre-push && git init -q && bash ./scripts/install-hooks.sh; fi'"
+
+_message_after_copy: |
+  Scaffold created at {{ _copier_conf.dst_path }}
+
+  Mode: {{ scaffold_mode }}
+  Workspace path metadata: {{ workspace_relative_path }}
+  Release component key: {{ release_component_key }}
+
+  Next:
+    cd {{ _copier_conf.dst_path }}
+    npm install
+    npm run docs:list
+    npm run check
+
+  Copier policy:
+    - Commit .copier-answers.yml
+    - Do not edit it manually
+    - Run update/recopy from a clean destination repo (commit or stash pending changes first)
+    - Use `copier update --trust` when `.copier-answers.yml` includes `_commit` and update is supported
+    - In non-interactive shells/CI, append `--defaults` to update/recopy
+    - Use `copier recopy --trust` when update is unavailable (e.g. local non-VCS source) or cannot reconcile cleanly

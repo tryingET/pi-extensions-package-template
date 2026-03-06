@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+
+errors=0
+
+fail() {
+  echo "$1" >&2
+  ((errors+=1))
+}
+
+if [[ -f .copier-answers.yml ]]; then
+  fail "Root .copier-answers.yml found. This repo is a Copier template source, not a generated repo."
+fi
+
+if [[ ! -f copier.yml ]]; then
+  fail "Missing copier.yml template config."
+fi
+
+if [[ ! -d copier-template ]]; then
+  fail "Missing copier-template directory."
+fi
+
+required_root_files=(
+  "package.json"
+  "LICENSE"
+  "CHANGELOG.md"
+  ".release-please-config.json"
+  ".release-please-manifest.json"
+  ".github/workflows/template-guardrails.yml"
+  ".github/workflows/release-check.yml"
+  ".github/workflows/release-please.yml"
+  ".github/workflows/publish.yml"
+  "bin/new-pi-extension-repo.mjs"
+  "bin/npm-bootstrap-publish.mjs"
+  "scripts/release-check-template.sh"
+  "copier-template/README.md.jinja"
+  "copier-template-monorepo-package/README.md.jinja"
+  "contract/generated-repo.contract.json"
+  "contract/generated-monorepo-package.contract.json"
+)
+
+for required_file in "${required_root_files[@]}"; do
+  if [[ ! -f "$required_file" ]]; then
+    fail "Missing required root file: $required_file"
+  fi
+done
+
+required_executables=(
+  "bin/new-pi-extension-repo.mjs"
+  "bin/npm-bootstrap-publish.mjs"
+  "scripts/release-check-template.sh"
+)
+
+for executable in "${required_executables[@]}"; do
+  if [[ ! -x "$executable" ]]; then
+    fail "Expected executable bit on: $executable"
+  fi
+done
+
+if [[ ! -f .gitignore ]] || ! grep -q '^\*\.tgz$' .gitignore; then
+  fail ".gitignore must include '*.tgz'"
+fi
+
+if ! grep -q "npm run release:check:quick" ".github/workflows/release-check.yml"; then
+  fail "release-check workflow must run npm run release:check:quick"
+fi
+
+if ! grep -q "npm run release:check" ".github/workflows/publish.yml"; then
+  fail "publish workflow must run npm run release:check"
+fi
+
+if grep -q "cache: npm" ".github/workflows/publish.yml"; then
+  fail "publish workflow must not require setup-node npm cache when lockfile may be absent"
+fi
+
+if ! grep -q "npm install --global npm@\^11.5.1" ".github/workflows/publish.yml"; then
+  fail "publish workflow must upgrade npm to >=11.5.1 for trusted publishing compatibility"
+fi
+
+release_please_ref="16a9c90856f42705d54a6fda1823352bdc62cf38"
+if ! grep -q "googleapis/release-please-action@${release_please_ref}" ".github/workflows/release-please.yml"; then
+  fail "release-please workflow must pin googleapis/release-please-action to ${release_please_ref} (v4.4.0)"
+fi
+
+if command -v node >/dev/null 2>&1; then
+  if ! node - <<'NODE'
+const fs = require("node:fs");
+
+let failed = false;
+const fail = (msg) => {
+  console.error(msg);
+  failed = true;
+};
+
+try {
+  const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+
+  if (typeof pkg.name !== "string" || pkg.name !== pkg.name.toLowerCase()) {
+    fail("package.json name must be lowercase");
+  }
+
+  if (pkg.publishConfig?.registry !== "https://registry.npmjs.org/") {
+    fail("package.json publishConfig.registry must be 'https://registry.npmjs.org/'");
+  }
+
+  if (pkg.publishConfig?.access !== "public") {
+    fail("package.json publishConfig.access must be 'public'");
+  }
+
+  const requiredScripts = {
+    check: "bash ./scripts/template-guardrails.sh",
+    "check:full": "bash ./scripts/template-guardrails.sh && bash ./scripts/smoke-test-template.sh && bash ./scripts/generated-contract-test.sh && bash ./scripts/idempotency-test-template.sh && SCAFFOLD_MODE=monorepo-package bash ./scripts/smoke-test-template.sh && SCAFFOLD_MODE=monorepo-package bash ./scripts/generated-contract-test.sh && SCAFFOLD_MODE=monorepo-package bash ./scripts/idempotency-test-template.sh",
+    "release:check": "bash ./scripts/release-check-template.sh",
+    "release:check:quick": "SKIP_COPIER_SMOKE=1 bash ./scripts/release-check-template.sh",
+  };
+  for (const [key, expected] of Object.entries(requiredScripts)) {
+    if (pkg.scripts?.[key] !== expected) {
+      fail(`package.json scripts.${key} must be '${expected}'`);
+    }
+  }
+
+  if (!pkg.bin || typeof pkg.bin !== "object") {
+    fail("package.json must define bin mappings");
+  } else {
+    const binValues = Object.values(pkg.bin).map((v) => String(v));
+    if (!binValues.includes("bin/new-pi-extension-repo.mjs")) {
+      fail("package.json bin must include bin/new-pi-extension-repo.mjs");
+    }
+    if (!binValues.includes("bin/npm-bootstrap-publish.mjs")) {
+      fail("package.json bin must include bin/npm-bootstrap-publish.mjs");
+    }
+  }
+
+  if (!Array.isArray(pkg.files) || pkg.files.length < 1) {
+    fail("package.json must define files[]");
+  } else {
+    const requiredFiles = [
+      "bin/new-pi-extension-repo.mjs",
+      "bin/npm-bootstrap-publish.mjs",
+      "copier-template",
+      "copier-template/.gitignore",
+      "copier-template-monorepo-package",
+      "copier-template-monorepo-package/.gitignore",
+      "copier.yml",
+      "new-pi-extension-repo.sh",
+      "README.md",
+      "LICENSE",
+    ];
+    for (const entry of requiredFiles) {
+      if (!pkg.files.includes(entry)) {
+        fail(`package.json files[] must include '${entry}'`);
+      }
+    }
+  }
+
+  const rpManifest = JSON.parse(fs.readFileSync(".release-please-manifest.json", "utf8"));
+  if (rpManifest["."] !== pkg.version) {
+    fail(".release-please-manifest.json '.' must match package.json version");
+  }
+
+  const rpConfig = JSON.parse(fs.readFileSync(".release-please-config.json", "utf8"));
+  if (rpConfig["include-v-in-tag"] !== true) {
+    fail(".release-please-config.json must set include-v-in-tag=true");
+  }
+  if (rpConfig["include-component-in-tag"] !== false) {
+    fail(".release-please-config.json must set include-component-in-tag=false");
+  }
+  if (!rpConfig.packages || !rpConfig.packages["."]) {
+    fail(".release-please-config.json must include packages['.']");
+  }
+} catch (error) {
+  fail(`Failed to validate root package metadata: ${error.message}`);
+}
+
+process.exit(failed ? 1 : 0);
+NODE
+  then
+    ((errors+=1))
+  fi
+fi
+
+if [[ "$errors" -gt 0 ]]; then
+  echo "Template guardrails failed with $errors issue(s)." >&2
+  exit 1
+fi
+
+echo "Template guardrails passed."
