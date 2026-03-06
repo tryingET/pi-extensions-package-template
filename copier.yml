@@ -5,11 +5,11 @@ _answers_file: ".copier-answers.yml"
 
 scaffold_mode:
   type: str
-  default: "standalone-repo"
+  default: "monorepo-package"
   choices:
     - "standalone-repo"
     - "monorepo-package"
-  help: "Scaffold mode: full standalone repo or package-only output for monorepos"
+  help: "Scaffold mode: package-only output for monorepos (default) or full standalone repo (legacy/opt-in)"
 
 npm_org:
   type: str

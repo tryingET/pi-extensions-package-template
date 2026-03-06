@@ -13,7 +13,7 @@ Optional env:
     GitHub handle to seed in generated metadata.
     If unset, tries `gh api user -q .login`, then falls back to tryingET.
   PI_SCAFFOLD_MODE=<standalone-repo|monorepo-package>
-    Scaffold mode (default: standalone-repo).
+    Scaffold mode (default: monorepo-package).
   PI_WORKSPACE_PATH=<path>
     Workspace-relative package path metadata (default: packages/<repo-name>).
   PI_RELEASE_COMPONENT=<key>
@@ -39,7 +39,7 @@ TARGET_DIR="$ROOT_DIR/$REPO_NAME"
 TEMPLATE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_REF="${PI_TEMPLATE_REF:-}"
 GITHUB_MAINTAINER="${PI_GITHUB_MAINTAINER:-}"
-SCAFFOLD_MODE="${PI_SCAFFOLD_MODE:-standalone-repo}"
+SCAFFOLD_MODE="${PI_SCAFFOLD_MODE:-monorepo-package}"
 WORKSPACE_PATH="${PI_WORKSPACE_PATH:-packages/$REPO_NAME}"
 RELEASE_COMPONENT="${PI_RELEASE_COMPONENT:-$REPO_NAME}"
 RELEASE_CONFIG_MODE="${PI_RELEASE_CONFIG_MODE:-component}"

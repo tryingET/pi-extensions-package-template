@@ -1,90 +1,94 @@
-# Next session prompt — template maintenance & repo migration
+---
+summary: "Handoff after moving pi-extensions-template_copier into softwareco/owned project scaffold with package-first defaults."
+read_when:
+  - "Starting the next session in the new template control-plane repo."
+system4d:
+  container: "Session handoff artifact for pi-extensions-template."
+  compass: "Keep package-first template scope explicit and reproducible."
+  engine: "Validate -> tighten defaults/docs -> prepare canonical adoption path."
+  fog: "Main risk is leaving mixed messaging between package-first intent and standalone-repo legacy mode."
+---
 
-You are working in:
-`~/programming/pi-extensions/pi-extensions-template_copier`
+# Next session prompt — pi-extensions-template
 
-## Context
-Template is stable with intake removal complete. New tooling added:
-- `justfile` for maintenance tasks
-- `scripts/update-generated-repos.sh` for batch updates
+## Workspace
 
-Current focus: **migrate existing repos onto the template** so they can receive future updates.
+- `~/ai-society/softwareco/owned/pi-extensions-template`
 
-## Repo migration status
+## What was done this session
 
-| Repo | Status | Blocker |
-|------|--------|---------|
-| `pi-extensions-template_copier` | N/A | This is the template source |
-| `pi-autonomous-session-control` | NEEDS FIX | Has `.copier-answers.yml`, but repo is dirty + pre-existing test failures block update |
-| `pi-little-helpers` | ✅ DONE | Migrated 2026-02-26 |
-| `pi-user-prompt-compaction` | NEEDS MIGRATION | Git repo, no `.copier-answers.yml` |
+- Created this repo from `softwareco/copier/tpl-project-repo`.
+- Imported `pi-extensions-template_copier` source into this repo.
+- Added project-scaffold tooling into template repo:
+  - `scripts/ci/{smoke,full}.sh`
+  - `scripts/rocs.sh`
+  - `governance/work-items.{cue,json}`
+  - `ontology/manifest.yaml` + ontology scaffold files
+  - `tools/rocs-cli/`
+- Initialized local git repo and created bootstrap commit.
+- Ran and fixed deterministic tooling checks:
+  - `ak work-items check` initially reported projection drift
+  - exported projection via `ak work-items export`
+- Flipped template generation defaults to package-first:
+  - `copier.yml` default `scaffold_mode=monorepo-package`
+  - wrapper defaults (`new-pi-extension-repo.sh`, `bin/new-pi-extension-repo.mjs`) now default to `monorepo-package`
+- Updated README to reflect package-first scope + new repo path references.
+- Added `ontology/dist/` to `.gitignore` to keep ROCS outputs out of status noise.
 
-## Migration tasks
+## Current validated state
 
-### 1. Fix `pi-autonomous-session-control` tests
-
-The tests are failing because they mock a `tool` object that doesn't exist in the current extension signature. The extension evolved but tests weren't updated.
+Run in this repo and currently passing:
 
 ```bash
-cd ~/programming/pi-extensions/pi-autonomous-session-control
-npm run check  # see failures
+npm run check
+npm run check:full
+npm run release:check:quick
+./scripts/ci/smoke.sh
+./scripts/ci/full.sh
+./scripts/rocs.sh --doctor
+ak work-items check --repo . --path ./governance/work-items.json
 ```
 
-Tasks:
-- [ ] Audit test files in `tests/` directory
-- [ ] Identify mock expectations vs actual extension API
-- [ ] Fix or skip broken tests (document why)
-- [ ] Run `npm run check` until green
-- [ ] Run update: `just update HEAD` (from template repo)
+## Priority objective next session
 
-### 2. Migrate `pi-little-helpers` ✅ DONE
+Use this repo as the canonical package-first L3 template source for `owned/pi-extensions`, with tracked root lineage back to `tpl-project-repo` and migration-aware downstream adoption.
 
-Completed 2026-02-26 via retroactive migration:
-- `git init`
-- Created `.copier-answers.yml` with correct metadata
-- Applied template with `copier copy --trust --defaults --force`
-- Refactored `package-update-notify.ts` (566→194 lines) by extracting `package-utils.ts`
-- Fixed lint issues in existing extensions
-- All checks pass: `npm run check`
+## Immediate execution queue
 
-### 3. Migrate `pi-user-prompt-compaction`
+1. **Naming + positioning cleanup**
+   - Decide if npm package/repo naming should remain `pi-extensions-template_copier` or move to a package-first name.
+   - Align `package.json` metadata (`repository`, `bugs`, `homepage`) with the new canonical repo path.
 
-Has git repo but no template metadata.
+2. **Docs hardening**
+   - Keep [package-first lineage decision](docs/decisions/package-first-lineage.md) in sync with repo guardrails and README.
+   - Maintain:
+     - package-first default,
+     - standalone mode as opt-in compatibility path,
+     - tracked root lineage for the L3 repo.
+
+3. **Operator path integration**
+   - Validate generation into monorepo destination:
+     - `~/ai-society/softwareco/owned/pi-extensions/packages/<new-package>`
+   - Confirm release metadata contract (`x-pi-template`) is preserved and discoverable.
+   - Repoint existing packages only via dedicated migration passes; a blind recopy into `prompt-template-accelerator` was shown to overwrite implementation files.
+
+4. **AK + ROCS guardrail tightening**
+   - Keep `governance/work-items.json` projection in sync after any governance edits.
+   - Ensure ontology refs and CI lanes stay deterministic in this repo and generated outputs.
+
+## Invariants
+
+- Treat this repo as **template source**, not generated output.
+- Keep root `.copier-answers.yml` tracked to preserve L2 -> L3 lineage.
+- Keep package-first as default; standalone mode must remain explicit opt-in.
+- Preserve monorepo-safe output constraints for `monorepo-package` mode.
+- Repoint downstream packages only with backups and package-specific validation.
+
+## Quick start
 
 ```bash
-cd ~/programming/pi-extensions/pi-user-prompt-compaction
-ls -la extensions/
-```
-
-Tasks:
-- [ ] Same options as `pi-little-helpers` (re-generate vs retroactive)
-- [ ] Prefer retroactive if repo has meaningful git history
-- [ ] Run `npm run check`
-- [ ] Commit
-
-## After all migrations
-
-```bash
-# Verify all repos are updateable
-cd ~/programming/pi-extensions/pi-extensions-template_copier
-just update-dry HEAD
-
-# Should show all repos as DRY-RUN ready (no SKIPPED except template source)
-```
-
-## Mandatory review method
-Use `~/steve/prompts/prompt-snippets.md` for deep review before release.
-
-## Fast start
-```bash
-cd ~/programming/pi-extensions/pi-extensions-template_copier
+cd ~/ai-society/softwareco/owned/pi-extensions-template
 git status --short
 npm run check:full
-just update-dry HEAD  # preview batch update
+./scripts/ci/full.sh
 ```
-
-## Decision log
-- Intake/interview process removed from template scaffold.
-- Docs and wrapper CLI now target plain extension scaffolding only.
-- Keep template minimal: extension scaffold + quality/release baseline.
-- `update-generated-repos.sh` uses `--overwrite` on recopy for conflict resolution.

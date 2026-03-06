@@ -11,8 +11,8 @@ Purpose: maintain Copier template source. Not generated target repo.
 - Keep template content under `copier-template/**`.
 - Keep template config in `copier.yml` (+ wrapper scripts at repo root).
 - Never run `copier copy ... .` into this repo root.
-- Root `.copier-answers.yml` is forbidden.
-- `copier update` not applicable for this repo.
+- Keep root `.copier-answers.yml` tracked to preserve L2 -> L3 lineage (`tpl-project-repo` source metadata).
+- `copier update` may be used for controlled L2 baseline sync; re-validate template guardrails afterward.
 
 ## Validation loop
 - Run `bash ./scripts/template-guardrails.sh`.

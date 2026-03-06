@@ -1,6 +1,6 @@
-# pi extension copier template
+# pi extension package template
 
-Copier-first template for creating production-ready pi extension repositories.
+Copier-first template for creating production-ready pi extension packages (monorepo-first).
 
 > This same README is used on npm (`@tryinget/pi-extensions-template_copier`).
 
@@ -23,6 +23,8 @@ npm exec --yes --package @tryinget/pi-extensions-template_copier -- \
   [--release-config-mode <component|none>] \
   [--monorepo-repo <pi-extensions>]
 ```
+
+Default scaffold mode is `monorepo-package`.
 
 Monorepo package mode example:
 
@@ -48,7 +50,8 @@ new-pi-extension-repo <repo-name> [command-name] \
 ## Preferred usage (Copier directly)
 
 ```bash
-copier copy --trust --vcs-ref HEAD ~/programming/pi-extensions/pi-extensions-template_copier ~/programming/pi-extensions/<repo-name> \
+copier copy --trust --vcs-ref HEAD ~/ai-society/softwareco/owned/pi-extensions-template ~/ai-society/softwareco/owned/pi-extensions/packages/<repo-name> \
+  -d scaffold_mode=monorepo-package \
   -d repo_name=<repo-name> \
   -d command_name=<command-name> \
   -d github_maintainer=<github-handle>
@@ -102,34 +105,44 @@ npmbp ~/programming/pi-extensions/pi-evalset-lab --op op://dev/npm-publish/token
 If you want the old command shape, use:
 
 ```bash
-bash ~/programming/pi-extensions/pi-extensions-template_copier/new-pi-extension-repo.sh <repo-name> [command-name]
+bash ~/ai-society/softwareco/owned/pi-extensions-template/new-pi-extension-repo.sh <repo-name> [command-name]
 ```
 
 The wrapper is intentionally thin: argument validation + `copier copy` invocation.
+
+Defaults in this repo are package-first (`monorepo-package`).
+Use standalone mode only when explicitly needed for legacy compatibility.
 
 When run from this template git checkout, it defaults to `--vcs-ref HEAD` so local changes are included.
 For reproducible generation, pin a tag/commit explicitly:
 
 ```bash
 PI_TEMPLATE_REF=v0.1.0 \
-  bash ~/programming/pi-extensions/pi-extensions-template_copier/new-pi-extension-repo.sh <repo-name> [command-name]
+  bash ~/ai-society/softwareco/owned/pi-extensions-template/new-pi-extension-repo.sh <repo-name> [command-name]
 ```
 
 Set a maintainer handle at generation time (optional):
 
 ```bash
 PI_GITHUB_MAINTAINER=tryingET \
-  bash ~/programming/pi-extensions/pi-extensions-template_copier/new-pi-extension-repo.sh <repo-name> [command-name]
+  bash ~/ai-society/softwareco/owned/pi-extensions-template/new-pi-extension-repo.sh <repo-name> [command-name]
 ```
 
-Generate in monorepo-package mode:
+Generate in monorepo-package mode (default):
 
 ```bash
 PI_SCAFFOLD_MODE=monorepo-package \
 PI_WORKSPACE_PATH=packages/<repo-name> \
 PI_RELEASE_COMPONENT=<repo-name> \
 PI_MONOREPO_REPO_NAME=pi-extensions \
-  bash ~/programming/pi-extensions/pi-extensions-template_copier/new-pi-extension-repo.sh <repo-name> [command-name]
+  bash ~/ai-society/softwareco/owned/pi-extensions-template/new-pi-extension-repo.sh <repo-name> [command-name]
+```
+
+Force standalone mode (legacy/opt-in):
+
+```bash
+PI_SCAFFOLD_MODE=standalone-repo \
+  bash ~/ai-society/softwareco/owned/pi-extensions-template/new-pi-extension-repo.sh <repo-name> [command-name]
 ```
 
 The wrapper refuses to generate from a dirty template repo by default.
@@ -137,15 +150,15 @@ Override only for local experiments:
 
 ```bash
 ALLOW_DIRTY_TEMPLATE=1 \
-  bash ~/programming/pi-extensions/pi-extensions-template_copier/new-pi-extension-repo.sh <repo-name> [command-name]
+  bash ~/ai-society/softwareco/owned/pi-extensions-template/new-pi-extension-repo.sh <repo-name> [command-name]
 ```
 
 ## What is templated
 
 Template files live under:
 
-- [copier-template/](copier-template/) for `standalone-repo` mode
-- [copier-template-monorepo-package/](copier-template-monorepo-package/) for `monorepo-package` mode
+- [copier-template-monorepo-package/](copier-template-monorepo-package/) for `monorepo-package` mode (**default**)
+- [copier-template/](copier-template/) for `standalone-repo` mode (legacy/opt-in)
 
 Both are configured via [copier.yml](copier.yml).
 
@@ -192,7 +205,8 @@ This repository is the **Copier template source**, not a generated extension rep
 - Treat `copier-template/` as the source of truth for scaffolded files.
 - Edit template behavior via `copier-template/**`, `copier.yml`, and wrapper scripts.
 - Do **not** run `copier copy ... .` into this repo root.
-- Do **not** commit a root `.copier-answers.yml` in this repo.
+- Keep root `.copier-answers.yml` committed: it carries L2 -> L3 lineage metadata from `tpl-project-repo`.
+- For scope + lineage rationale, see [docs/decisions/package-first-lineage.md](docs/decisions/package-first-lineage.md).
 
 Install local pre-commit guardrails once:
 

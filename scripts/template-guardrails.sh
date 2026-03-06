@@ -11,8 +11,12 @@ fail() {
   ((errors+=1))
 }
 
-if [[ -f .copier-answers.yml ]]; then
-  fail "Root .copier-answers.yml found. This repo is a Copier template source, not a generated repo."
+if [[ ! -f .copier-answers.yml ]]; then
+  fail "Missing root .copier-answers.yml. This repo keeps L2 lineage metadata for tpl-project-repo."
+else
+  if ! grep -qE '^_src_path: .*tpl-project-repo$' .copier-answers.yml; then
+    fail "Root .copier-answers.yml must keep _src_path lineage to tpl-project-repo."
+  fi
 fi
 
 if [[ ! -f copier.yml ]]; then

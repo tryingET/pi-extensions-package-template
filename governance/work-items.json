@@ -1,13 +1,7 @@
 {
   "schema_version": 1,
-  "updated_at": "",
-  "owner": "@tryinget",
-  "project_name": "pi-extensions-template",
-  "milestones": [
-    {
-      "id": "M1",
-      "title": "Initial Setup",
-      "issues": []
-    }
-  ]
+  "updated_at": "1970-01-01",
+  "owner": "@project-owners",
+  "project_name": "agent-kernel",
+  "milestones": []
 }

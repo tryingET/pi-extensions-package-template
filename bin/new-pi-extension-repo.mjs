@@ -23,7 +23,7 @@ Options:
   --template-ref <ref>             Override copier --vcs-ref
   --github-maintainer <handle>     GitHub handle seeded in generated metadata
   --mode <standalone-repo|monorepo-package>
-                                   Scaffold mode (default: standalone-repo)
+                                   Scaffold mode (default: monorepo-package)
   --workspace-path <path>          Workspace-relative package path metadata (monorepo mode)
   --release-component <key>        release-please component key metadata (monorepo mode)
   --release-config-mode <component|none>
@@ -193,8 +193,8 @@ const explicitTemplateRef = templateRefArg ?? process.env.PI_TEMPLATE_REF ?? "";
 const templateRef = explicitTemplateRef || (templateSourceIsGitRepo(TEMPLATE_DIR) ? "HEAD" : "");
 const githubMaintainer = detectGithubMaintainer(githubMaintainerArg);
 const scaffoldMode =
-  (scaffoldModeArg ?? process.env.PI_SCAFFOLD_MODE ?? "standalone-repo").trim() ||
-  "standalone-repo";
+  (scaffoldModeArg ?? process.env.PI_SCAFFOLD_MODE ?? "monorepo-package").trim() ||
+  "monorepo-package";
 const workspacePath =
   (workspacePathArg ?? process.env.PI_WORKSPACE_PATH ?? `packages/${repoName}`).trim() ||
   `packages/${repoName}`;
