@@ -112,6 +112,7 @@ Canonical root contract:
 
 Completed:
 - monorepo package template `scripts/quality-gate.sh` is now a thin wrapper that searches upward for the canonical root gate
+- the wrapper can also honor `PACKAGE_QUALITY_GATE_SCRIPT` for isolated validation contexts outside the monorepo tree
 - template README now describes monorepo package output as root-gate delegation rather than a private full-copy gate
 
 Still to align:

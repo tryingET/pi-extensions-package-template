@@ -42,6 +42,7 @@ bash ./scripts/package-quality-gate.sh ci {{ workspace_relative_path }}
 ```
 
 The generated package-local `scripts/quality-gate.sh` is a thin wrapper that searches upward for the canonical monorepo root gate.
+If you validate the package outside the monorepo tree, set `PACKAGE_QUALITY_GATE_SCRIPT` to the canonical `pi-extensions` root gate path.
 
 ## Release metadata
 

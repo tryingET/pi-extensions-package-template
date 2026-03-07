@@ -67,6 +67,16 @@ copier "${copier_args[@]}" "$TEMPLATE_SRC" "$DEST_DIR"
 (
   cd "$DEST_DIR"
 
+  if [[ "$SCAFFOLD_MODE" == "simple-package" ]]; then
+    sibling_gate="$ROOT_DIR/../pi-extensions/scripts/package-quality-gate.sh"
+    canonical_gate="$HOME/ai-society/softwareco/owned/pi-extensions/scripts/package-quality-gate.sh"
+    if [[ -x "$sibling_gate" ]]; then
+      export PACKAGE_QUALITY_GATE_SCRIPT="$sibling_gate"
+    elif [[ -x "$canonical_gate" ]]; then
+      export PACKAGE_QUALITY_GATE_SCRIPT="$canonical_gate"
+    fi
+  fi
+
   # Basic structure validation
   node - "$REPO_NAME" "$COMMAND_NAME" "$NPM_ORG" "$SCAFFOLD_MODE" "$WORKSPACE_RELATIVE_PATH" "$RELEASE_COMPONENT_KEY" "$RELEASE_CONFIG_MODE" <<'NODE'
 const fs = require("node:fs");
