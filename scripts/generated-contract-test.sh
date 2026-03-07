@@ -3,9 +3,13 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEMPLATE_SRC="${1:-$ROOT_DIR}"
-SCAFFOLD_MODE="${SCAFFOLD_MODE:-standalone-repo}"
+RAW_SCAFFOLD_MODE="${SCAFFOLD_MODE:-standalone-repo}"
+SCAFFOLD_MODE="$RAW_SCAFFOLD_MODE"
+if [[ "$RAW_SCAFFOLD_MODE" == "monorepo-package" ]]; then
+  SCAFFOLD_MODE="simple-package"
+fi
 DEFAULT_CONTRACT_SPEC="$ROOT_DIR/contract/generated-repo.contract.json"
-if [[ "$SCAFFOLD_MODE" == "monorepo-package" ]]; then
+if [[ "$SCAFFOLD_MODE" == "simple-package" ]]; then
   DEFAULT_CONTRACT_SPEC="$ROOT_DIR/contract/generated-monorepo-package.contract.json"
 fi
 CONTRACT_SPEC="${CONTRACT_SPEC:-$DEFAULT_CONTRACT_SPEC}"
@@ -27,8 +31,8 @@ if [[ ! -f "$CONTRACT_SPEC" ]]; then
   exit 1
 fi
 
-if [[ "$SCAFFOLD_MODE" != "standalone-repo" && "$SCAFFOLD_MODE" != "monorepo-package" ]]; then
-  echo "Invalid SCAFFOLD_MODE: $SCAFFOLD_MODE" >&2
+if [[ "$RAW_SCAFFOLD_MODE" != "standalone-repo" && "$RAW_SCAFFOLD_MODE" != "monorepo-package" && "$RAW_SCAFFOLD_MODE" != "simple-package" ]]; then
+  echo "Invalid SCAFFOLD_MODE: $RAW_SCAFFOLD_MODE" >&2
   exit 1
 fi
 

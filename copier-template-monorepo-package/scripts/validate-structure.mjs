@@ -105,8 +105,10 @@ function validatePackageJson() {
   if (!templateMeta || typeof templateMeta !== "object") {
     fail("package.json must include x-pi-template metadata");
   } else {
-    if (templateMeta.scaffoldMode !== "monorepo-package") {
-      fail("package.json x-pi-template.scaffoldMode must be 'monorepo-package'");
+    if (!["simple-package", "monorepo-package"].includes(templateMeta.scaffoldMode)) {
+      fail(
+        "package.json x-pi-template.scaffoldMode must be 'simple-package' or legacy alias 'monorepo-package'",
+      );
     }
     if (typeof templateMeta.workspacePath !== "string" || templateMeta.workspacePath.length === 0) {
       fail("package.json x-pi-template.workspacePath must be non-empty");

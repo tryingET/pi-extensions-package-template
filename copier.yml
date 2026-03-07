@@ -1,15 +1,16 @@
 _min_copier_version: "9.0.0"
-_subdirectory: "{{ 'copier-template-monorepo-package' if scaffold_mode == 'monorepo-package' else 'copier-template' }}"
+_subdirectory: "{{ 'copier-template-monorepo-package' if scaffold_mode in ['monorepo-package', 'simple-package'] else 'copier-template' }}"
 _templates_suffix: ".jinja"
 _answers_file: ".copier-answers.yml"
 
 scaffold_mode:
   type: str
-  default: "monorepo-package"
+  default: "simple-package"
   choices:
-    - "standalone-repo"
+    - "simple-package"
     - "monorepo-package"
-  help: "Scaffold mode: package-only output for monorepos (default) or full standalone repo (legacy/opt-in)"
+    - "standalone-repo"
+  help: "Scaffold mode: simple-package (preferred monorepo package scaffold), monorepo-package (legacy alias), or full standalone repo (legacy/opt-in)"
 
 npm_org:
   type: str

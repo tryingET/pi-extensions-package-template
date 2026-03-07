@@ -6,7 +6,11 @@ TEMPLATE_SRC="${1:-$ROOT_DIR}"
 REPO_NAME="${SMOKE_REPO_NAME:-template-smoke}"
 COMMAND_NAME="${SMOKE_COMMAND_NAME:-template-smoke}"
 NPM_ORG="${SMOKE_NPM_ORG:-tryinget}"
-SCAFFOLD_MODE="${SCAFFOLD_MODE:-standalone-repo}"
+RAW_SCAFFOLD_MODE="${SCAFFOLD_MODE:-standalone-repo}"
+SCAFFOLD_MODE="$RAW_SCAFFOLD_MODE"
+if [[ "$RAW_SCAFFOLD_MODE" == "monorepo-package" ]]; then
+  SCAFFOLD_MODE="simple-package"
+fi
 WORKSPACE_RELATIVE_PATH="${WORKSPACE_RELATIVE_PATH:-packages/$REPO_NAME}"
 RELEASE_COMPONENT_KEY="${RELEASE_COMPONENT_KEY:-$REPO_NAME}"
 RELEASE_CONFIG_MODE="${RELEASE_CONFIG_MODE:-component}"
@@ -23,8 +27,8 @@ if ! command -v npm >/dev/null 2>&1; then
   exit 1
 fi
 
-if [[ "$SCAFFOLD_MODE" != "standalone-repo" && "$SCAFFOLD_MODE" != "monorepo-package" ]]; then
-  echo "Invalid SCAFFOLD_MODE: $SCAFFOLD_MODE" >&2
+if [[ "$RAW_SCAFFOLD_MODE" != "standalone-repo" && "$RAW_SCAFFOLD_MODE" != "monorepo-package" && "$RAW_SCAFFOLD_MODE" != "simple-package" ]]; then
+  echo "Invalid SCAFFOLD_MODE: $RAW_SCAFFOLD_MODE" >&2
   exit 1
 fi
 
@@ -108,12 +112,12 @@ for (const [key, value] of [
   }
 }
 
-if (expectedMode === "monorepo-package") {
+if (expectedMode === "monorepo-package" || expectedMode === "simple-package") {
   if (fs.existsSync(".github")) {
-    fail("monorepo-package mode must not generate .github directory");
+    fail("simple-package mode must not generate .github directory");
   }
   if (fs.existsSync(".githooks")) {
-    fail("monorepo-package mode must not generate .githooks directory");
+    fail("simple-package mode must not generate .githooks directory");
   }
   if (pkg.repository?.directory !== expectedWorkspacePath) {
     fail(`package.json repository.directory mismatch: expected ${expectedWorkspacePath}, got ${pkg.repository?.directory}`);
@@ -123,7 +127,7 @@ if (expectedMode === "monorepo-package") {
   if (!meta) {
     fail("package.json missing x-pi-template metadata");
   } else {
-    if (meta.scaffoldMode !== "monorepo-package") {
+    if (meta.scaffoldMode !== "simple-package" && meta.scaffoldMode !== "monorepo-package") {
       fail(`x-pi-template.scaffoldMode mismatch: ${meta.scaffoldMode}`);
     }
     if (meta.workspacePath !== expectedWorkspacePath) {

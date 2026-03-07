@@ -23,7 +23,8 @@ During migration into `softwareco/owned`, the repo became functionally valid as 
 ## Decision
 
 1. **Package-first is the canonical mode.**
-   - Default scaffold mode is `monorepo-package`.
+   - Default scaffold mode is `simple-package`.
+   - `monorepo-package` is retained as a compatibility alias for older callers.
    - The main target is `~/ai-society/softwareco/owned/pi-extensions/packages/*`.
 
 2. **Standalone repo mode remains compatibility-only.**

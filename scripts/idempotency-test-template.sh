@@ -5,7 +5,11 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEMPLATE_SRC="${1:-$ROOT_DIR}"
 REPO_NAME="${IDEMPOTENCY_REPO_NAME:-template-idempotency}"
 COMMAND_NAME="${IDEMPOTENCY_COMMAND_NAME:-template-idempotency}"
-SCAFFOLD_MODE="${SCAFFOLD_MODE:-standalone-repo}"
+RAW_SCAFFOLD_MODE="${SCAFFOLD_MODE:-standalone-repo}"
+SCAFFOLD_MODE="$RAW_SCAFFOLD_MODE"
+if [[ "$RAW_SCAFFOLD_MODE" == "monorepo-package" ]]; then
+  SCAFFOLD_MODE="simple-package"
+fi
 WORKSPACE_RELATIVE_PATH="${WORKSPACE_RELATIVE_PATH:-packages/$REPO_NAME}"
 RELEASE_COMPONENT_KEY="${RELEASE_COMPONENT_KEY:-$REPO_NAME}"
 RELEASE_CONFIG_MODE="${RELEASE_CONFIG_MODE:-component}"
@@ -22,8 +26,8 @@ if ! command -v git >/dev/null 2>&1; then
   exit 1
 fi
 
-if [[ "$SCAFFOLD_MODE" != "standalone-repo" && "$SCAFFOLD_MODE" != "monorepo-package" ]]; then
-  echo "Invalid SCAFFOLD_MODE: $SCAFFOLD_MODE" >&2
+if [[ "$RAW_SCAFFOLD_MODE" != "standalone-repo" && "$RAW_SCAFFOLD_MODE" != "monorepo-package" && "$RAW_SCAFFOLD_MODE" != "simple-package" ]]; then
+  echo "Invalid SCAFFOLD_MODE: $RAW_SCAFFOLD_MODE" >&2
   exit 1
 fi
 

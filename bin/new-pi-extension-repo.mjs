@@ -11,7 +11,8 @@ const TEMPLATE_DIR = path.resolve(__dirname, "..");
 
 const NAME_PATTERN = /^[a-zA-Z0-9._-]+$/;
 const GITHUB_HANDLE_PATTERN = /^[A-Za-z0-9-]+$/;
-const SCAFFOLD_MODES = new Set(["standalone-repo", "monorepo-package"]);
+const SCAFFOLD_MODES = new Set(["standalone-repo", "monorepo-package", "simple-package"]);
+const SCAFFOLD_MODE_ALIASES = new Map([["simple-package", "simple-package"], ["monorepo-package", "simple-package"]]);
 const RELEASE_CONFIG_MODES = new Set(["component", "none"]);
 const WORKSPACE_PATH_PATTERN = /^[a-zA-Z0-9._/-]+$/;
 
@@ -22,8 +23,8 @@ Options:
   --target-dir <path>              Destination directory (default: ./<repo-name>)
   --template-ref <ref>             Override copier --vcs-ref
   --github-maintainer <handle>     GitHub handle seeded in generated metadata
-  --mode <standalone-repo|monorepo-package>
-                                   Scaffold mode (default: monorepo-package)
+  --mode <simple-package|standalone-repo|monorepo-package>
+                                   Scaffold mode (default: simple-package; monorepo-package is a compatibility alias)
   --workspace-path <path>          Workspace-relative package path metadata (monorepo mode)
   --release-component <key>        release-please component key metadata (monorepo mode)
   --release-config-mode <component|none>
@@ -192,9 +193,13 @@ const commandName = positional[1] ?? repoName;
 const explicitTemplateRef = templateRefArg ?? process.env.PI_TEMPLATE_REF ?? "";
 const templateRef = explicitTemplateRef || (templateSourceIsGitRepo(TEMPLATE_DIR) ? "HEAD" : "");
 const githubMaintainer = detectGithubMaintainer(githubMaintainerArg);
+const rawScaffoldMode =
+  (scaffoldModeArg ?? process.env.PI_SCAFFOLD_MODE ?? "simple-package").trim() ||
+  "simple-package";
 const scaffoldMode =
-  (scaffoldModeArg ?? process.env.PI_SCAFFOLD_MODE ?? "monorepo-package").trim() ||
-  "monorepo-package";
+  rawScaffoldMode === "standalone-repo"
+    ? "standalone-repo"
+    : (SCAFFOLD_MODE_ALIASES.get(rawScaffoldMode) ?? rawScaffoldMode);
 const workspacePath =
   (workspacePathArg ?? process.env.PI_WORKSPACE_PATH ?? `packages/${repoName}`).trim() ||
   `packages/${repoName}`;
@@ -215,8 +220,8 @@ if (!NAME_PATTERN.test(commandName)) {
   fail("Error: command-name must match [a-zA-Z0-9._-]+");
 }
 
-if (!SCAFFOLD_MODES.has(scaffoldMode)) {
-  fail("Error: --mode must be one of standalone-repo or monorepo-package");
+if (!SCAFFOLD_MODES.has(rawScaffoldMode)) {
+  fail("Error: --mode must be one of simple-package, standalone-repo, or monorepo-package");
 }
 
 if (!WORKSPACE_PATH_PATTERN.test(workspacePath)) {

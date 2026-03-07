@@ -201,9 +201,9 @@ else
     npm run check
   )
 
-  echo "== local CLI monorepo-package generation smoke"
+  echo "== local CLI simple-package generation smoke"
   LOCAL_MONO_SMOKE_DIR="$TMP_DIR/local-cli-monorepo-smoke"
-  node ./bin/new-pi-extension-repo.mjs local-cli-monorepo-smoke --target-dir "$LOCAL_MONO_SMOKE_DIR" --mode monorepo-package --workspace-path packages/local-cli-monorepo-smoke --release-component local-cli-monorepo-smoke --monorepo-repo pi-extensions
+  node ./bin/new-pi-extension-repo.mjs local-cli-monorepo-smoke --target-dir "$LOCAL_MONO_SMOKE_DIR" --mode simple-package --workspace-path packages/local-cli-monorepo-smoke --release-component local-cli-monorepo-smoke --monorepo-repo pi-extensions
   install_generated_repo_deps "$LOCAL_MONO_SMOKE_DIR"
   (
     cd "$LOCAL_MONO_SMOKE_DIR"
@@ -220,9 +220,9 @@ else
       npm run check
     )
 
-    echo "== packaged CLI monorepo-package generation smoke"
+    echo "== packaged CLI simple-package generation smoke"
     PACKAGED_MONO_SMOKE_DIR="$TMP_DIR/packaged-cli-monorepo-smoke"
-    npm exec --yes --package "$TARBALL_PATH" -- new-pi-extension-repo packaged-cli-monorepo-smoke --target-dir "$PACKAGED_MONO_SMOKE_DIR" --mode monorepo-package --workspace-path packages/packaged-cli-monorepo-smoke --release-component packaged-cli-monorepo-smoke --monorepo-repo pi-extensions
+    npm exec --yes --package "$TARBALL_PATH" -- new-pi-extension-repo packaged-cli-monorepo-smoke --target-dir "$PACKAGED_MONO_SMOKE_DIR" --mode simple-package --workspace-path packages/packaged-cli-monorepo-smoke --release-component packaged-cli-monorepo-smoke --monorepo-repo pi-extensions
     install_generated_repo_deps "$PACKAGED_MONO_SMOKE_DIR"
     (
       cd "$PACKAGED_MONO_SMOKE_DIR"

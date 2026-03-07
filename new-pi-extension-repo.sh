@@ -12,8 +12,8 @@ Optional env:
   PI_GITHUB_MAINTAINER=<handle>
     GitHub handle to seed in generated metadata.
     If unset, tries `gh api user -q .login`, then falls back to tryingET.
-  PI_SCAFFOLD_MODE=<standalone-repo|monorepo-package>
-    Scaffold mode (default: monorepo-package).
+  PI_SCAFFOLD_MODE=<simple-package|standalone-repo|monorepo-package>
+    Scaffold mode (default: simple-package; monorepo-package is a compatibility alias).
   PI_WORKSPACE_PATH=<path>
     Workspace-relative package path metadata (default: packages/<repo-name>).
   PI_RELEASE_COMPONENT=<key>
@@ -39,7 +39,11 @@ TARGET_DIR="$ROOT_DIR/$REPO_NAME"
 TEMPLATE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_REF="${PI_TEMPLATE_REF:-}"
 GITHUB_MAINTAINER="${PI_GITHUB_MAINTAINER:-}"
-SCAFFOLD_MODE="${PI_SCAFFOLD_MODE:-monorepo-package}"
+RAW_SCAFFOLD_MODE="${PI_SCAFFOLD_MODE:-simple-package}"
+SCAFFOLD_MODE="$RAW_SCAFFOLD_MODE"
+if [[ "$RAW_SCAFFOLD_MODE" == "monorepo-package" ]]; then
+  SCAFFOLD_MODE="simple-package"
+fi
 WORKSPACE_PATH="${PI_WORKSPACE_PATH:-packages/$REPO_NAME}"
 RELEASE_COMPONENT="${PI_RELEASE_COMPONENT:-$REPO_NAME}"
 RELEASE_CONFIG_MODE="${PI_RELEASE_CONFIG_MODE:-component}"
@@ -55,8 +59,8 @@ if [[ ! "$COMMAND_NAME" =~ ^[a-zA-Z0-9._-]+$ ]]; then
   exit 1
 fi
 
-if [[ "$SCAFFOLD_MODE" != "standalone-repo" && "$SCAFFOLD_MODE" != "monorepo-package" ]]; then
-  echo "Error: PI_SCAFFOLD_MODE must be standalone-repo or monorepo-package" >&2
+if [[ "$RAW_SCAFFOLD_MODE" != "standalone-repo" && "$RAW_SCAFFOLD_MODE" != "monorepo-package" && "$RAW_SCAFFOLD_MODE" != "simple-package" ]]; then
+  echo "Error: PI_SCAFFOLD_MODE must be simple-package, standalone-repo, or monorepo-package" >&2
   exit 1
 fi
 

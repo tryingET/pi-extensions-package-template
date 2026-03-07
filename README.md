@@ -17,21 +17,40 @@ npm exec --yes --package @tryinget/pi-extensions-template_copier -- \
   new-pi-extension-repo <repo-name> [command-name] \
   [--target-dir <path>] \
   [--github-maintainer <handle>] \
-  [--mode <standalone-repo|monorepo-package>] \
+  [--mode <simple-package|standalone-repo|monorepo-package>] \
   [--workspace-path <packages/<repo-name>>] \
   [--release-component <key>] \
   [--release-config-mode <component|none>] \
   [--monorepo-repo <pi-extensions>]
 ```
 
-Default scaffold mode is `monorepo-package`.
+Default scaffold mode is `simple-package`.
+`monorepo-package` remains a compatibility alias for the same one-package monorepo scaffold.
+
+## Terminology clarification
+
+Preferred topology language in this template is now:
+
+- `simple-package` — one package root such as `packages/prompt-template-accelerator`
+- `package-group` — one logical capability split into multiple interlinked packages such as `packages/pi-interaction/`
+
+Current implementation status:
+
+- `simple-package` is the preferred live mode
+- `monorepo-package` is kept as a compatibility alias for `simple-package`
+- `standalone-repo` remains legacy/opt-in
+- `package-group` is the intended next explicit topology mode, but is not scaffolded yet
+
+See:
+- [package-first lineage](docs/decisions/package-first-lineage.md)
+- [package topology modes](docs/decisions/package-topology-modes.md)
 
 Monorepo package mode example:
 
 ```bash
 npm exec --yes --package @tryinget/pi-extensions-template_copier -- \
   new-pi-extension-repo pi-input-triggers input-triggers \
-  --mode monorepo-package \
+  --mode simple-package \
   --target-dir ~/ai-society/softwareco/owned/pi-extensions/packages/pi-input-triggers \
   --workspace-path packages/pi-input-triggers \
   --release-component pi-input-triggers \
@@ -51,7 +70,7 @@ new-pi-extension-repo <repo-name> [command-name] \
 
 ```bash
 copier copy --trust --vcs-ref HEAD ~/ai-society/softwareco/owned/pi-extensions-template ~/ai-society/softwareco/owned/pi-extensions/packages/<repo-name> \
-  -d scaffold_mode=monorepo-package \
+  -d scaffold_mode=simple-package \
   -d repo_name=<repo-name> \
   -d command_name=<command-name> \
   -d github_maintainer=<github-handle>
@@ -110,7 +129,7 @@ bash ~/ai-society/softwareco/owned/pi-extensions-template/new-pi-extension-repo.
 
 The wrapper is intentionally thin: argument validation + `copier copy` invocation.
 
-Defaults in this repo are package-first (`monorepo-package`).
+Defaults in this repo are package-first (`simple-package`, with `monorepo-package` kept as a compatibility alias).
 Use standalone mode only when explicitly needed for legacy compatibility.
 
 When run from this template git checkout, it defaults to `--vcs-ref HEAD` so local changes are included.
@@ -128,10 +147,10 @@ PI_GITHUB_MAINTAINER=tryingET \
   bash ~/ai-society/softwareco/owned/pi-extensions-template/new-pi-extension-repo.sh <repo-name> [command-name]
 ```
 
-Generate in monorepo-package mode (default):
+Generate in simple-package mode (default):
 
 ```bash
-PI_SCAFFOLD_MODE=monorepo-package \
+PI_SCAFFOLD_MODE=simple-package \
 PI_WORKSPACE_PATH=packages/<repo-name> \
 PI_RELEASE_COMPONENT=<repo-name> \
 PI_MONOREPO_REPO_NAME=pi-extensions \
@@ -157,7 +176,7 @@ ALLOW_DIRTY_TEMPLATE=1 \
 
 Template files live under:
 
-- [copier-template-monorepo-package/](copier-template-monorepo-package/) for `monorepo-package` mode (**default**)
+- [copier-template-monorepo-package/](copier-template-monorepo-package/) for `simple-package` mode (**default**) and `monorepo-package` compatibility alias
 - [copier-template/](copier-template/) for `standalone-repo` mode (legacy/opt-in)
 
 Both are configured via [copier.yml](copier.yml).
@@ -166,7 +185,10 @@ Generated scaffold includes (mode-dependent):
 
 - package extension entrypoint in `extensions/<command-name>.ts`
 - governance docs + `system4d` frontmatter
-- unified quality gate lane:
+- unified quality gate lane
+  - current output still vendors package-local validation scripts
+  - intended monorepo direction is a root-owned package gate with thin package wrappers
+  - see [package topology modes](docs/decisions/package-topology-modes.md)
   - Biome baseline: `biome.jsonc` + `.vscode/settings.json` + pinned `@biomejs/biome`
   - `scripts/quality-gate.sh` stages: `pre-commit`, `pre-push`, `ci`
   - hooks: `.githooks/pre-commit`, `.githooks/pre-push`
@@ -220,8 +242,8 @@ Smoke-test template changes by generating to a temp directory:
 # standalone-repo mode (default)
 bash ./scripts/smoke-test-template.sh
 
-# monorepo-package mode
-SCAFFOLD_MODE=monorepo-package bash ./scripts/smoke-test-template.sh
+# simple-package mode
+SCAFFOLD_MODE=simple-package bash ./scripts/smoke-test-template.sh
 ```
 
 Generated repo contract check (required include/exclude paths + placeholder leak scan):
@@ -230,8 +252,8 @@ Generated repo contract check (required include/exclude paths + placeholder leak
 # standalone-repo mode (default)
 bash ./scripts/generated-contract-test.sh
 
-# monorepo-package mode
-SCAFFOLD_MODE=monorepo-package bash ./scripts/generated-contract-test.sh
+# simple-package mode
+SCAFFOLD_MODE=simple-package bash ./scripts/generated-contract-test.sh
 ```
 
 Contract rules live in `contract/generated-repo.contract.json` (versioned in git).
@@ -250,8 +272,8 @@ Generated repo idempotency check (`copier update` fallback `recopy`):
 # standalone-repo mode (default)
 bash ./scripts/idempotency-test-template.sh
 
-# monorepo-package mode
-SCAFFOLD_MODE=monorepo-package bash ./scripts/idempotency-test-template.sh
+# simple-package mode
+SCAFFOLD_MODE=simple-package bash ./scripts/idempotency-test-template.sh
 ```
 
 Code metadata discovery (top-level comments in programming files):
