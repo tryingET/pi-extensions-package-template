@@ -115,8 +115,10 @@ try {
   }
 
   const requiredScripts = {
+    "quality:pre-commit": "bash ./scripts/template-guardrails.sh",
+    "quality:pre-push": "npm run check:full",
     check: "bash ./scripts/template-guardrails.sh",
-    "check:full": "bash ./scripts/template-guardrails.sh && bash ./scripts/smoke-test-template.sh && bash ./scripts/generated-contract-test.sh && bash ./scripts/idempotency-test-template.sh && SCAFFOLD_MODE=monorepo-package bash ./scripts/smoke-test-template.sh && SCAFFOLD_MODE=monorepo-package bash ./scripts/generated-contract-test.sh && SCAFFOLD_MODE=monorepo-package bash ./scripts/idempotency-test-template.sh",
+    "check:full": "bash ./scripts/template-guardrails.sh && bash ./scripts/smoke-test-template.sh && bash ./scripts/generated-contract-test.sh && bash ./scripts/idempotency-test-template.sh && SCAFFOLD_MODE=simple-package bash ./scripts/smoke-test-template.sh && SCAFFOLD_MODE=simple-package bash ./scripts/generated-contract-test.sh && SCAFFOLD_MODE=simple-package bash ./scripts/idempotency-test-template.sh",
     "release:check": "bash ./scripts/release-check-template.sh",
     "release:check:quick": "SKIP_COPIER_SMOKE=1 bash ./scripts/release-check-template.sh",
   };
