@@ -1,5 +1,5 @@
 ---
-summary: "Proposed rename and redesign of template scaffold modes around monorepo package topology rather than repo topology wording."
+summary: "Implemented topology-first template direction for monorepo package outputs, replacing repo-topology wording as the primary model."
 read_when:
   - "Changing scaffold modes in copier.yml or wrapper CLIs."
   - "Explaining the difference between a single package and an interlinked package-group."
@@ -15,7 +15,7 @@ system4d:
 
 ## Status
 
-Proposed.
+Partially implemented.
 
 ## Problem
 
@@ -85,11 +85,11 @@ Use for:
 
 For monorepo generation, template outputs should not embed a full private copy of package validation logic.
 
-Instead:
-- monorepo-generated package outputs should delegate to the root canonical script in `pi-extensions`
-- template outputs should provide thin wrappers only
+Implemented direction:
+- monorepo-generated package outputs delegate to the root canonical script in `pi-extensions`
+- template outputs provide thin wrappers only
 
-That means the template redesign is coupled to introduction of:
+Canonical root contract:
 
 - `~/ai-society/softwareco/owned/pi-extensions/scripts/package-quality-gate.sh`
 
@@ -107,6 +107,16 @@ That means the template redesign is coupled to introduction of:
 
 ### Phase 3 — compatibility cleanup
 - once callers are migrated, retire confusing old names or keep them only as aliases
+
+## Implementation state right now
+
+Completed:
+- monorepo package template `scripts/quality-gate.sh` is now a thin wrapper that searches upward for the canonical root gate
+- template README now describes monorepo package output as root-gate delegation rather than a private full-copy gate
+
+Still to align:
+- generated docs/contracts should consistently describe the implemented root-gate model everywhere
+- broader scaffold terminology cleanup can continue incrementally
 
 ## Important clarification
 

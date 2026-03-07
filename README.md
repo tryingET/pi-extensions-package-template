@@ -186,8 +186,8 @@ Generated scaffold includes (mode-dependent):
 - package extension entrypoint in `extensions/<command-name>.ts`
 - governance docs + `system4d` frontmatter
 - unified quality gate lane
-  - current output still vendors package-local validation scripts
-  - intended monorepo direction is a root-owned package gate with thin package wrappers
+  - monorepo package output delegates to the root-owned package gate in `pi-extensions`
+  - generated monorepo package `scripts/quality-gate.sh` is a thin wrapper only
   - see [package topology modes](docs/decisions/package-topology-modes.md)
   - Biome baseline: `biome.jsonc` + `.vscode/settings.json` + pinned `@biomejs/biome`
   - `scripts/quality-gate.sh` stages: `pre-commit`, `pre-push`, `ci`

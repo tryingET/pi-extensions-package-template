@@ -35,11 +35,13 @@ npm install
 npm run check
 ```
 
-Or from monorepo root:
+Run from monorepo root through the canonical package gate:
 
 ```bash
-npm --workspace @{{ npm_org }}/{{ repo_name }} run check
+bash ./scripts/package-quality-gate.sh ci {{ workspace_relative_path }}
 ```
+
+The generated package-local `scripts/quality-gate.sh` is a thin wrapper that searches upward for the canonical monorepo root gate.
 
 ## Release metadata
 
