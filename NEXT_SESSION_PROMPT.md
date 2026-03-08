@@ -1,40 +1,70 @@
 ---
-summary: "Canonical handoff for continuing L3 template work in pi-extensions-template."
+summary: "Canonical handoff for continuing template work in pi-extensions-template with tech-stack-core review and reduced-form output decisions still open."
 read_when:
   - "Starting the next session in the canonical template repo."
 system4d:
   container: "Session handoff artifact for pi-extensions-template."
-  compass: "Keep package-first template scope explicit and release-safe."
-  engine: "Validate template -> normalize naming/docs -> prepare release step."
-  fog: "Main risk is lingering naming/path drift, not lineage drift anymore."
+  compass: "Keep template outputs minimal, review tech-stack policy boundaries deliberately, and avoid encoding root policy into every generated package by default."
+  engine: "Validate template -> review tech-stack surfaces -> review session-prompt surfaces -> decide reduced-form template boundary -> prepare follow-up change carefully."
+  fog: "Main risks are treating template output as the policy source, forgetting the root repo now owns more validation policy, or missing session/handoff prompt surfaces when changing template behavior."
 ---
 
 # Next session prompt — pi-extensions-template
 
 ## Continue here
 
-- Canonical L3 template repo: `~/ai-society/softwareco/owned/pi-extensions-template`
+- Canonical template repo: `~/ai-society/softwareco/owned/pi-extensions-template`
 - Monorepo root context: `~/ai-society/softwareco/owned/pi-extensions/NEXT_SESSION_PROMPT.md`
 
 ## Current truth
 
 - This is the canonical L3 template source.
-- Package-first generation is the default.
-- Repointed package metadata in the monorepo already references this repo as `_src_path`.
+- Package-first generation is still the default.
+- `pi-extensions` root now owns more of the `tech-stack-core` review/validation policy surface.
+- Template outputs currently still include tech-stack artifacts such as:
+  - `docs/tech-stack.local.md`
+  - `policy/stack-lane.json`
+- the next review should decide whether the **reduced form** is better for package-shaped outputs:
+  - root repo (`pi-extensions`) keeps the policy/validation stance
+  - generated package templates emit only the local override file needed for repo-specific divergence
+- this decision is **not** done yet and should not be applied blindly without checking review/validation consequences.
+- session/handoff prompt surfaces also need to stay in scope during this review:
+  - `copier-template/NEXT_SESSION_PROMPT.md.jinja`
+  - `copier-template-monorepo-package/NEXT_SESSION_PROMPT.md.jinja`
+  - `~/ai-society/softwareco/owned/pi-extensions/packages/pi-prompt-template-accelerator/prompts/one-line-handoff.md`
+  - `~/ai-society/softwareco/owned/pi-extensions/packages/pi-prompt-template-accelerator/prompts/one-sentence-handoff.md`
+- `pi-vault-client` phase-1 Nunjucks support is implemented separately; only live verification remains there.
+
+## First review surfaces
+
+1. `NEXT_SESSION_PROMPT.md`
+2. `README.md`
+3. `copier-template/docs/tech-stack.local.md`
+4. `copier-template/policy/stack-lane.json`
+5. `copier-template/scripts/validate-structure.sh`
+6. `copier-template/scripts/validate-structure.mjs`
+7. `copier-template-monorepo-package/docs/tech-stack.local.md`
+8. `copier-template-monorepo-package/policy/stack-lane.json`
+9. `copier-template-monorepo-package/scripts/validate-structure.sh`
+10. `copier-template-monorepo-package/scripts/validate-structure.mjs`
+11. `copier-template/NEXT_SESSION_PROMPT.md.jinja`
+12. `copier-template-monorepo-package/NEXT_SESSION_PROMPT.md.jinja`
+13. `~/ai-society/softwareco/owned/pi-extensions/NEXT_SESSION_PROMPT.md`
 
 ## Continue with
 
-1. Successor identity is now `@tryinget/pi-extensions-package-template` / `tryingET/pi-extensions-package-template`.
-2. Predecessor identity `pi-extensions-template_copier` is legacy/archive-only because it described an older repo-shaped bootstrapper, not the current monorepo-package template purpose.
-3. Next work should verify the new GitHub/npm identity end to end and publish the first successor release under the new package name.
-
-## Next proper release step
-
-- Ensure successor GitHub repo metadata and local `origin` remain aligned.
-- Run the full validation suite from this repo on top of the successor package name.
-- Push to `main` with Conventional Commits.
-- Let release-please open/update the first PR for the successor identity.
-- Merge that PR and publish the first `@tryinget/pi-extensions-package-template` release from the GitHub release workflow.
+1. Review the `tech-stack-core` boundary between:
+   - root policy in `pi-extensions`
+   - local override files in generated repos/packages
+2. Decide whether package-shaped templates should move to the reduced form:
+   - keep `docs/tech-stack.local.md`
+   - drop `policy/stack-lane.json` from template output if the policy truly belongs upstream
+   - only do this if validation/review surfaces remain coherent
+3. Review handoff/session-prompt implications before changing template output:
+   - generic `NEXT_SESSION_PROMPT` templates
+   - `one-line-handoff` / `one-sentence-handoff` prompt surfaces
+4. Keep `pi-vault-client` Nunjucks verification separate:
+   - if you need to verify live rendering behavior, route back to `packages/pi-vault-client/NEXT_SESSION_PROMPT.md`
 
 ## Must-pass checks
 
