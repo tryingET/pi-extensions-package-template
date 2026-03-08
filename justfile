@@ -1,4 +1,4 @@
-# Justfile for pi-extensions-template_copier
+# Justfile for pi-extensions-package-template
 # Run `just` to list available recipes.
 
 _default:

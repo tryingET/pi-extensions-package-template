@@ -1,8 +1,17 @@
 # pi extension package template
 
-Copier-first template for creating production-ready pi extension packages (monorepo-first).
+Canonical source checkout: `~/ai-society/softwareco/owned/pi-extensions-template`
 
-> This same README is used on npm (`@tryinget/pi-extensions-template_copier`).
+Published successor identity: `@tryinget/pi-extensions-package-template`
+GitHub successor identity: `tryingET/pi-extensions-package-template`
+
+Archived predecessor identity:
+- npm: `@tryinget/pi-extensions-template_copier`
+- GitHub: `tryingET/pi-extensions-template_copier`
+
+Copier-first template for creating production-ready pi extension packages inside a monorepo.
+
+> This same README is intended for npm (`@tryinget/pi-extensions-package-template`).
 
 ## Acknowledgements
 
@@ -13,7 +22,7 @@ Copier-first template for creating production-ready pi extension packages (monor
 Run directly without global install:
 
 ```bash
-npm exec --yes --package @tryinget/pi-extensions-template_copier -- \
+npm exec --yes --package @tryinget/pi-extensions-package-template -- \
   new-pi-extension-repo <repo-name> [command-name] \
   [--target-dir <path>] \
   [--github-maintainer <handle>] \
@@ -45,10 +54,10 @@ See:
 - [package-first lineage](docs/decisions/package-first-lineage.md)
 - [package topology modes](docs/decisions/package-topology-modes.md)
 
-Monorepo package mode example:
+Simple-package mode example:
 
 ```bash
-npm exec --yes --package @tryinget/pi-extensions-template_copier -- \
+npm exec --yes --package @tryinget/pi-extensions-package-template -- \
   new-pi-extension-repo pi-input-triggers input-triggers \
   --mode simple-package \
   --target-dir ~/ai-society/softwareco/owned/pi-extensions/packages/pi-input-triggers \
@@ -60,7 +69,7 @@ npm exec --yes --package @tryinget/pi-extensions-template_copier -- \
 Install once, then run:
 
 ```bash
-npm install -g @tryinget/pi-extensions-template_copier
+npm install -g @tryinget/pi-extensions-package-template
 new-pi-extension-repo <repo-name> [command-name] \
   [--target-dir <path>] \
   [--github-maintainer <handle>]
@@ -94,7 +103,7 @@ NPM_TOKEN=... npm-bootstrap-publish --project ~/programming/pi-extensions/pi-eva
 You can run it without global install too:
 
 ```bash
-npm exec --yes --package @tryinget/pi-extensions-template_copier -- \
+npm exec --yes --package @tryinget/pi-extensions-package-template -- \
   npm-bootstrap-publish --project ~/programming/pi-extensions/pi-evalset-lab --op op://dev/npm-publish/token
 ```
 

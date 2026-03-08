@@ -24,9 +24,17 @@ system4d:
 
 ## Continue with
 
-1. Decide whether naming stays `pi-extensions-template_copier` or moves to a package-first identity.
-2. Align `package.json` metadata and README wording with the canonical repo path.
-3. Resolve the local-vs-published version mismatch and prepare the next proper release/version step.
+1. Successor identity is now `@tryinget/pi-extensions-package-template` / `tryingET/pi-extensions-package-template`.
+2. Predecessor identity `pi-extensions-template_copier` is legacy/archive-only because it described an older repo-shaped bootstrapper, not the current monorepo-package template purpose.
+3. Next work should verify the new GitHub/npm identity end to end and publish the first successor release under the new package name.
+
+## Next proper release step
+
+- Ensure successor GitHub repo metadata and local `origin` remain aligned.
+- Run the full validation suite from this repo on top of the successor package name.
+- Push to `main` with Conventional Commits.
+- Let release-please open/update the first PR for the successor identity.
+- Merge that PR and publish the first `@tryinget/pi-extensions-package-template` release from the GitHub release workflow.
 
 ## Must-pass checks
 

@@ -17,7 +17,7 @@ Options:
   --pre-msg <msg>       Pre-update commit message template
                         Default: "chore(template): snapshot before update from {ref}"
   --post-msg <msg>      Post-update commit message template
-                        Default: "chore(template): sync from pi-extensions-template_copier {ref}"
+                        Default: "chore(template): sync from pi-extensions-package-template {ref}"
   --author <name>       Git author name for commits (default: current repo config)
   --email <email>       Git author email for commits (default: current repo config)
   --dry-run             Show what would happen without making changes
@@ -41,7 +41,7 @@ CHECK_CMD="npm run check"
 PRE_COMMIT=false
 POST_COMMIT=false
 PRE_MSG="chore(template): snapshot before update from {ref}"
-POST_MSG="chore(template): sync from pi-extensions-template_copier {ref}"
+POST_MSG="chore(template): sync from pi-extensions-package-template {ref}"
 AUTHOR=""
 EMAIL=""
 DRY_RUN=false

@@ -1,17 +1,17 @@
 {
-  "name": "@tryinget/pi-extensions-template_copier",
-  "version": "0.5.0",
-  "description": "Copier template + CLI for bootstrapping production-ready pi extension repositories",
+  "name": "@tryinget/pi-extensions-package-template",
+  "version": "0.5.1",
+  "description": "Copier template + CLI for bootstrapping production-ready pi extension packages inside a monorepo",
   "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tryingET/pi-extensions-template_copier.git"
+    "url": "git+https://github.com/tryingET/pi-extensions-package-template.git"
   },
   "bugs": {
-    "url": "https://github.com/tryingET/pi-extensions-template_copier/issues"
+    "url": "https://github.com/tryingET/pi-extensions-package-template/issues"
   },
-  "homepage": "https://github.com/tryingET/pi-extensions-template_copier#readme",
+  "homepage": "https://github.com/tryingET/pi-extensions-package-template#readme",
   "keywords": [
     "pi-package",
     "pi-extension",
@@ -20,7 +20,6 @@
   ],
   "bin": {
     "new-pi-extension-repo": "bin/new-pi-extension-repo.mjs",
-    "pi-extensions-template_copier": "bin/new-pi-extension-repo.mjs",
     "npm-bootstrap-publish": "bin/npm-bootstrap-publish.mjs"
   },
   "files": [

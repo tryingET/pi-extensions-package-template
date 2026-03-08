@@ -1,5 +1,15 @@
 # Changelog
 
+> Repository/package identity is transitioning to `tryingET/pi-extensions-package-template` / `@tryinget/pi-extensions-package-template`.
+> Historical entries before that transition still reference `pi-extensions-template_copier`.
+
+
+## [0.5.1](https://github.com/tryingET/pi-extensions-template_copier/compare/v0.5.0...v0.5.1) (2026-02-27)
+
+### Bug Fixes
+
+* **ci:** support isolated monorepo package gate validation ([4ae4d04](https://github.com/tryingET/pi-extensions-template_copier/commit/4ae4d04))
+
 ## [0.5.0](https://github.com/tryingET/pi-extensions-template_copier/compare/v0.4.0...v0.5.0) (2026-02-27)
 
 
