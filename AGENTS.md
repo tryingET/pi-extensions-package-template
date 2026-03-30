@@ -8,10 +8,12 @@ Purpose: maintain Copier template source. Not generated target repo.
 - Once confidence is sufficient, implement complete template-safe changes, then validate.
 
 ## Invariants
-- Keep template content under `copier-template/**`.
+- Keep template content under `copier-template/**` and `copier-template-monorepo-package/**`.
 - Keep template config in `copier.yml` (+ wrapper scripts at repo root).
 - Never run `copier copy ... .` into this repo root.
 - Keep root `.copier-answers.yml` tracked to preserve L2 -> L3 lineage (`tpl-project-repo` source metadata).
+- Generated package docs should prefer `docs/project/` for dated RFCs/runbooks/notes and `docs/adr/` for adopted decisions; do not reintroduce package-local `docs/dev/` trees.
+- Generated monorepo packages should document use of the ancestor repo-root `./scripts/ak.sh` wrapper for AK task/work-item operations rather than inventing package-local wrappers.
 - `copier update` may be used for controlled L2 baseline sync; re-validate template guardrails afterward.
 
 ## Validation loop

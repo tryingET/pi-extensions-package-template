@@ -205,6 +205,10 @@ Generated scaffold includes (mode-dependent):
   - npm scripts: `fix`, `quality:pre-commit`, `quality:pre-push`, `quality:ci`
 - repo-local commit prompt:
   - `.pi/prompts/commit.md`
+- docs placement baseline:
+  - `docs/project/` for contributor guides, dated RFCs, runbooks, and evidence/progress notes
+  - `docs/adr/` reserved for adopted architecture decisions
+  - generated monorepo packages document use of the ancestor repo-root `scripts/ak.sh` wrapper for AK task/work-item operations
 - docs discovery wrapper:
   - `scripts/docs-list.sh`
   - npm scripts: `docs:list`, `docs:list:workspace`, `docs:list:json`
@@ -229,6 +233,10 @@ Generated scaffold includes (mode-dependent):
 TypeScript lane reference (for generated repos):
 - `uv tool run --from ~/ai-society/core/tech-stack-core tech-stack-core show pi-ts --prefer-repo`
 - pinned lane metadata: `policy/stack-lane.json`
+- optional companions when a package genuinely benefits:
+  - `fast-check` for parser/rendering/selection invariants
+  - `@cucumber/cucumber` for executable Gherkin/operator workflows
+  - `nunjucks` for reusable text/config/prompt/file templates
 
 ## Template-source guardrails (this repo)
 

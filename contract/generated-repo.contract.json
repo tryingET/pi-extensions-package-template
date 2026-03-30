@@ -16,7 +16,11 @@
     ".github/workflows/vouch-check-pr.yml",
     ".github/workflows/vouch-manage.yml",
     "docs/org/operating_model.md",
+    "docs/project/contributing.md",
+    "docs/project/extension-sop.md",
+    "docs/project/trusted-publishing.md",
     "docs/tech-stack.local.md",
+    "docs/adr/.gitkeep",
     "policy/stack-lane.json",
     "scripts/release-check.sh",
     "scripts/validate-structure.sh",
@@ -49,7 +53,6 @@
     "@your-github-handle"
   ],
   "content_scan_exclude_paths": [
-    "scripts/validate-structure.sh",
-    "scripts/sync-to-live.sh"
+    "scripts/validate-structure.sh"
   ]
 }

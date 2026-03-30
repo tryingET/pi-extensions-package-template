@@ -44,6 +44,42 @@ bash ./scripts/package-quality-gate.sh ci {{ workspace_relative_path }}
 The generated package-local `scripts/quality-gate.sh` is a thin wrapper that searches upward for the canonical monorepo root gate.
 If you validate the package outside the monorepo tree, set `PACKAGE_QUALITY_GATE_SCRIPT` to the canonical `pi-extensions` root gate path.
 
+## AK task/work-item operations
+
+This package is a monorepo member, not a git root.
+Use the monorepo-root AK wrapper for task/work-item operations:
+
+```bash
+# from the monorepo root
+./scripts/ak.sh --doctor
+./scripts/ak.sh task ready
+
+# from this package directory
+../../scripts/ak.sh --doctor
+../../scripts/ak.sh task show <id> -F json
+```
+
+## Documentation placement
+
+Use:
+- `docs/project/` for dated RFCs, runbooks, and evidence/progress notes
+- `docs/adr/` for adopted architecture decisions
+
+Avoid creating new package-local `docs/dev/` trees.
+
+## Live package activation
+
+Install the package into Pi from the package directory containing this package's `package.json`:
+
+```bash
+pi install /absolute/path/to/your/monorepo/{{ workspace_relative_path }}
+```
+
+Then in Pi:
+
+1. run `/reload`
+2. verify with a real command or tool call from this package
+
 ## Release metadata
 
 This scaffold writes component metadata in `package.json` under `x-pi-template`:
@@ -61,6 +97,15 @@ npm run docs:list
 npm run docs:list:workspace
 npm run docs:list:json
 ```
+
+## Stack lane companions
+
+This package follows the shared `pi-ts` lane.
+Add companions only when they materially improve clarity or reuse:
+
+- `fast-check` for parser/rendering/selection invariants
+- `@cucumber/cucumber` for executable Gherkin/operator workflows
+- `nunjucks` for reusable text/config/prompt/file templates
 
 ## Copier lifecycle policy
 

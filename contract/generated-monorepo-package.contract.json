@@ -15,10 +15,11 @@
     "docs/project/vision.md",
     "docs/project/incentives.md",
     "docs/project/resources.md",
-    "docs/dev/CONTRIBUTING.md",
-    "docs/dev/EXTENSION_SOP.md",
-    "docs/dev/trusted_publishing.md",
+    "docs/project/contributing.md",
+    "docs/project/extension-sop.md",
+    "docs/project/trusted-publishing.md",
     "docs/tech-stack.local.md",
+    "docs/adr/.gitkeep",
     "policy/stack-lane.json",
     "policy/security-policy.json",
     "scripts/release-check.sh",
@@ -26,7 +27,6 @@
     "scripts/validate-structure.mjs",
     "scripts/quality-gate.sh",
     "scripts/docs-list.sh",
-    "scripts/sync-to-live.sh",
     ".pi/prompts/commit.md"
   ],
   "forbidden_paths": [
@@ -51,7 +51,6 @@
     "@your-github-handle"
   ],
   "content_scan_exclude_paths": [
-    "scripts/validate-structure.sh",
-    "scripts/sync-to-live.sh"
+    "scripts/validate-structure.sh"
   ]
 }

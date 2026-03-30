@@ -25,6 +25,9 @@ system4d:
 - For TypeScript extension conventions, consult `tech-stack-core` lane `pi-ts`:
   - `uv tool run --from ~/ai-society/core/tech-stack-core tech-stack-core show pi-ts --prefer-repo`
 - If your docs-list script is not at `~/ai-society/core/agent-scripts/scripts/docs-list.mjs`, set `DOCS_LIST_SCRIPT`.
+- Put dated RFCs, runbooks, and evidence/progress notes in `docs/project/`.
+- Put adopted architecture decisions in `docs/adr/`.
+- Do not create new package-local `docs/dev/` trees.
 
 ## Validation
 

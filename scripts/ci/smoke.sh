@@ -44,9 +44,4 @@ if [ -n "$protected_hits" ]; then
 fi
 
 [ -x "./scripts/ci/full.sh" ] || die_env "missing or non-executable: scripts/ci/full.sh"
-if [ -f "./docs/dev/now.md" ]; then
-  [ -f "./AGENTS.md" ] || die "docs/dev/now.md exists but AGENTS.md is missing"
-  grep -q "docs/dev/now.md" "./AGENTS.md" || die "docs/dev/now.md exists but is not referenced from AGENTS.md"
-fi
-
 say "ok: ci smoke"

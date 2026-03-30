@@ -12,7 +12,7 @@ system4d:
 
 # Contributing
 
-Primary contributor guide: [docs/dev/CONTRIBUTING.md](docs/dev/CONTRIBUTING.md)
+Primary contributor guide: [docs/project/contributing.md](docs/project/contributing.md)
 
 ## Minimum checklist
 
@@ -25,7 +25,7 @@ Primary contributor guide: [docs/dev/CONTRIBUTING.md](docs/dev/CONTRIBUTING.md)
 
 ## Biome suppressions
 
-Canonical policy: [docs/dev/CONTRIBUTING.md#biome-suppression-policy](docs/dev/CONTRIBUTING.md#biome-suppression-policy)
+Canonical policy: [docs/project/contributing.md#biome-suppression-policy](docs/project/contributing.md#biome-suppression-policy)
 
 - Every `biome-ignore` must include a short rationale.
 - Long-lived suppressions must include a tracking reference (`TODO(#123)` or `Issue: #123`).
