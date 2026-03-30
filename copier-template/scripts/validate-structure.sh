@@ -66,13 +66,12 @@ required_files=(
   "docs/project/vision.md"
   "docs/project/incentives.md"
   "docs/project/resources.md"
-  "NEXT_SESSION_PROMPT.md"
+  "next_session_prompt.md"
   "docs/tech-stack.local.md"
   "docs/dev/CONTRIBUTING.md"
   "docs/dev/EXTENSION_SOP.md"
   "policy/stack-lane.json"
   ".pi/prompts/commit.md"
-  "scripts/sync-to-live.sh"
   "scripts/install-hooks.sh"
   "scripts/docs-list.sh"
   "scripts/release-check.sh"
@@ -105,7 +104,6 @@ required_dirs=(
 )
 
 required_executables=(
-  "scripts/sync-to-live.sh"
   "scripts/install-hooks.sh"
   "scripts/docs-list.sh"
   "scripts/release-check.sh"

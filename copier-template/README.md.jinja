@@ -178,6 +178,12 @@ uv tool run --from ~/ai-society/core/tech-stack-core tech-stack-core show pi-ts 
 
 Pinned lane metadata lives in [policy/stack-lane.json](policy/stack-lane.json).
 
+Optional pi-ts companions for generated packages (add only when they materially help):
+
+- `fast-check` for parser/rendering/selection invariants
+- `@cucumber/cucumber` for executable Gherkin/operator workflows
+- `nunjucks` for reusable text/config/prompt/file templates
+
 ## Copier lifecycle policy
 
 - Keep `.copier-answers.yml` committed.
@@ -199,18 +205,18 @@ Pinned lane metadata lives in [policy/stack-lane.json](policy/stack-lane.json).
 - Repo-local commit workflow prompt:
   - [`.pi/prompts/commit.md`](.pi/prompts/commit.md)
 
-## Live sync helper
+## Live package activation
 
-Use [scripts/sync-to-live.sh](scripts/sync-to-live.sh) to copy extension entrypoints plus
-shared `src/` modules into `~/.pi/agent/extensions/{{ repo_name }}/`.
+For local development installs, install the package into Pi from the repo path:
 
-Optional flags:
+```bash
+pi install /absolute/path/to/your/{{ repo_name }}
+```
 
-- `--with-prompts`
-- `--with-policy`
-- `--all` (prompts + policy)
+Then in Pi:
 
-After sync, run `/reload` in pi.
+1. run `/reload`
+2. verify with a real command or tool call from this package
 
 ## Docs map
 
@@ -223,4 +229,4 @@ After sync, run `/reload` in pi.
 - [Contributor guide](docs/dev/CONTRIBUTING.md)
 - [Extension SOP](docs/dev/EXTENSION_SOP.md)
 - [Trusted publishing runbook](docs/dev/trusted_publishing.md)
-- [Next session prompt](NEXT_SESSION_PROMPT.md)
+- [Next session prompt](next_session_prompt.md)
