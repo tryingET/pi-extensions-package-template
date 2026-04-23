@@ -27,3 +27,9 @@ Repo-local emphasis:
 - Auto-fix workflow: `npm run fix` (before commit or when applying AI-generated diffs).
 - Pin lane metadata in `policy/stack-lane.json` (`lane: ts`, pinned `tech_stack_core.ref`).
 - Validate structural/docs invariants with `npm run check`.
+- Optional pi-ts companions (add only when the package actually benefits):
+  - `fast-check` for parser/rendering/selection invariants.
+  - `@cucumber/cucumber` only when executable operator/workflow scenarios materially improve shared understanding.
+  - `nunjucks` for reusable text/config/prompt/file templates when plain typed render functions are no longer enough.
+  - `tech-stack-pi-ts.ts-quality.md` when the package explicitly adopts deterministic screening with `ts-quality`.
+- If the package adopts `ts-quality`, prefer repo-local rollout truth in `docs/project/ts-quality-current-vs-target.md` and keep the detailed adoption doctrine upstream in `~/ai-society/softwareco/owned/ts-quality/docs/adoption/`.

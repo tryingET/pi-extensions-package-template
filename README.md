@@ -237,6 +237,8 @@ TypeScript lane reference (for generated repos):
   - `fast-check` for parser/rendering/selection invariants
   - `@cucumber/cucumber` for executable Gherkin/operator workflows
   - `nunjucks` for reusable text/config/prompt/file templates
+  - `tech-stack-pi-ts.ts-quality.md` when the package explicitly adopts deterministic screening with `ts-quality`
+- when a generated package adopts `ts-quality`, prefer repo-local rollout truth in `docs/project/ts-quality-current-vs-target.md` and keep the detailed adoption doctrine upstream in `~/ai-society/softwareco/owned/ts-quality/docs/adoption/`
 
 ## Template-source guardrails (this repo)
 
