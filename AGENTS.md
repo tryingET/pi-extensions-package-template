@@ -13,7 +13,8 @@ Purpose: maintain Copier template source. Not generated target repo.
 - Never run `copier copy ... .` into this repo root.
 - Keep root `.copier-answers.yml` tracked to preserve L2 -> L3 lineage (`tpl-project-repo` source metadata).
 - Generated package docs should prefer `docs/project/` for dated RFCs/runbooks/notes and `docs/adr/` for adopted decisions; do not reintroduce package-local `docs/dev/` trees.
-- Generated monorepo packages should document use of the ancestor repo-root `./scripts/ak.sh` wrapper for AK task/work-item operations rather than inventing package-local wrappers.
+- Generated monorepo packages should use plain installed `ak` for AK task/work-item operations rather than inventing package-local wrappers or copied launcher scripts.
+- Generated monorepo packages should also state that direction authority stays at the monorepo root, with `ak direction import|check|export` run against the root repo context rather than package-local direction state.
 - `copier update` may be used for controlled L2 baseline sync; re-validate template guardrails afterward.
 
 ## Validation loop

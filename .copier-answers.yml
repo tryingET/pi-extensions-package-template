@@ -1,13 +1,13 @@
 _src_path: /home/tryinget/ai-society/softwareco/copier/tpl-project-repo
 company_name: Software Company
-company_ontology_ref: <gitlab:ai-society/softwareco/ontology@main>
+company_ontology_ref: <repo:softwareco@main>
 company_slug: softwareco
 core_owner_handle: '@core-owner'
 enable_community_pack: false
 enable_release_pack: false
 enable_software_pack: false
 enable_vouch_gate: false
-kernel_ontology_ref: <gitlab:ai-society/core/ontology-kernel@main>
+kernel_ontology_ref: <repo:core/ontology-kernel@main>
 language: python
 location: owned
 org_owner_handle: '@org-owners'

@@ -32,7 +32,7 @@
 * **tooling:** add update-generated-repos.sh for batch template sync
 * **template:** make release-check.sh test settings configurable
 * **template:** convert CODEOWNERS to jinja template
-* **template:** extract validation to mjs and add sync-to-live symlink mode
+* **template:** extract validation to mjs and add legacy live-link helper symlink mode
 * add pinned dependency update checker
 
 ### Changes

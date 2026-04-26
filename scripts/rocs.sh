@@ -2,7 +2,10 @@
 set -eu
 
 repo_root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-core_project_default="${ROCS_CORE_PROJECT:-$HOME/ai-society/core/rocs-cli}"
+workspace_root_default="$(CDPATH= cd -- "$repo_root/../../.." && pwd)"
+: "${ROCS_WORKSPACE_ROOT:=$workspace_root_default}"
+: "${ROCS_WORKSPACE_REF_MODE:=loose}"
+workspace_rocs_repo="${ROCS_CORE_PROJECT:-$ROCS_WORKSPACE_ROOT/core/rocs-cli}"
 
 say() {
   printf '%s\n' "$*"
@@ -27,10 +30,8 @@ usage: scripts/rocs.sh [--doctor|--which|--help] [rocs args...]
 
 Portable ROCS launcher with deterministic resolution order:
   1) ROCS_BIN override
-  2) vendored ./tools/rocs-cli
-  3) local rocs-cli project (this repo)
-  4) workspace core ~/ai-society/core/rocs-cli (or ROCS_CORE_PROJECT)
-  5) rocs on PATH
+  2) workspace core (ROCS_WORKSPACE_ROOT/core/rocs-cli or ROCS_CORE_PROJECT)
+  3) rocs on PATH
 
 Examples:
   ./scripts/rocs.sh version
@@ -40,44 +41,30 @@ Examples:
 EOF
 }
 
-is_local_rocs_project() {
-  [ -f "$repo_root/pyproject.toml" ] || return 1
-  grep -q 'name = "rocs-cli"' "$repo_root/pyproject.toml"
-}
-
 select_runner() {
   if [ -n "${ROCS_BIN:-}" ]; then
-    printf '%s\n' "rocs-bin"
+    if [ -x "$ROCS_BIN" ] || command -v "$ROCS_BIN" >/dev/null 2>&1; then
+      printf '%s\n' "rocs-bin"
+      return
+    fi
+    printf '%s\n' "rocs-bin-missing"
     return
   fi
 
-  if [ -d "$repo_root/tools/rocs-cli" ]; then
+  if [ -x "$workspace_rocs_repo/.venv/bin/rocs" ]; then
+    printf '%s\n' "workspace-core-venv"
+    return
+  fi
+
+  if [ -f "$workspace_rocs_repo/pyproject.toml" ]; then
     if has_cmd uvx; then
-      printf '%s\n' "vendored-uvx"
+      printf '%s\n' "workspace-core-uvx"
       return
     fi
     if has_cmd uv; then
-      printf '%s\n' "vendored-uv"
+      printf '%s\n' "workspace-core-uv"
       return
     fi
-    printf '%s\n' "vendored-missing-runtime"
-    return
-  fi
-
-  if is_local_rocs_project; then
-    if has_cmd uv; then
-      printf '%s\n' "local-project-uv"
-      return
-    fi
-    if has_cmd python; then
-      printf '%s\n' "local-project-python"
-      return
-    fi
-  fi
-
-  if [ -d "$core_project_default" ] && [ -f "$core_project_default/pyproject.toml" ] && has_cmd uv; then
-    printf '%s\n' "workspace-core-uv"
-    return
   fi
 
   if has_cmd rocs; then
@@ -93,23 +80,17 @@ runner_desc() {
     rocs-bin)
       printf 'ROCS_BIN=%s\n' "${ROCS_BIN}"
       ;;
-    vendored-uvx)
-      printf 'vendored via uvx: %s\n' "$repo_root/tools/rocs-cli"
+    rocs-bin-missing)
+      printf 'ROCS_BIN is set but not executable/resolvable (%s)\n' "${ROCS_BIN}"
       ;;
-    vendored-uv)
-      printf 'vendored via uv tool run: %s\n' "$repo_root/tools/rocs-cli"
+    workspace-core-venv)
+      printf 'workspace core via %s\n' "$workspace_rocs_repo/.venv/bin/rocs"
       ;;
-    vendored-missing-runtime)
-      printf 'vendored found but missing uv/uvx: %s\n' "$repo_root/tools/rocs-cli"
-      ;;
-    local-project-uv)
-      printf 'local rocs-cli project via uv --project %s\n' "$repo_root"
-      ;;
-    local-project-python)
-      printf 'local rocs-cli project via python -m rocs_cli (%s)\n' "$repo_root"
+    workspace-core-uvx)
+      printf 'workspace core via uvx --from %s\n' "$workspace_rocs_repo"
       ;;
     workspace-core-uv)
-      printf 'workspace core via uv --project %s\n' "$core_project_default"
+      printf 'workspace core via uv tool run --from %s\n' "$workspace_rocs_repo"
       ;;
     path-rocs)
       printf 'rocs on PATH (%s)\n' "$(command -v rocs)"
@@ -128,16 +109,17 @@ doctor() {
 
   say "rocs launcher doctor"
   say "- repo_root: $repo_root"
-  say "- core_project_default: $core_project_default"
+  say "- ROCS_WORKSPACE_ROOT: $ROCS_WORKSPACE_ROOT"
+  say "- ROCS_WORKSPACE_REF_MODE: $ROCS_WORKSPACE_REF_MODE"
+  say "- workspace_rocs_repo: $workspace_rocs_repo"
+  say "- workspace core available: $([ -f "$workspace_rocs_repo/pyproject.toml" ] && printf yes || printf no)"
+  say "- workspace core .venv rocs: $([ -x "$workspace_rocs_repo/.venv/bin/rocs" ] && printf yes || printf no)"
   say "- has uv: $(has_cmd uv && printf yes || printf no)"
   say "- has uvx: $(has_cmd uvx && printf yes || printf no)"
-  say "- has python: $(has_cmd python && printf yes || printf no)"
   say "- has rocs on PATH: $(has_cmd rocs && printf yes || printf no)"
-  say "- has vendored tools/rocs-cli: $([ -d "$repo_root/tools/rocs-cli" ] && printf yes || printf no)"
-  say "- local project is rocs-cli: $(is_local_rocs_project && printf yes || printf no)"
   say "- selected runner: $(runner_desc "$runner")"
 
-  if [ "$runner" = "missing" ] || [ "$runner" = "vendored-missing-runtime" ]; then
+  if [ "$runner" = "missing" ] || [ "$runner" = "rocs-bin-missing" ]; then
     return 1
   fi
   return 0
@@ -157,7 +139,7 @@ runner="$(select_runner)"
 
 if [ "${1:-}" = "--which" ]; then
   runner_desc "$runner"
-  if [ "$runner" = "missing" ] || [ "$runner" = "vendored-missing-runtime" ]; then
+  if [ "$runner" = "missing" ] || [ "$runner" = "rocs-bin-missing" ]; then
     exit 1
   fi
   exit 0
@@ -165,30 +147,24 @@ fi
 
 case "$runner" in
   rocs-bin)
-    exec "$ROCS_BIN" "$@"
+    ROCS_WORKSPACE_ROOT="$ROCS_WORKSPACE_ROOT" ROCS_WORKSPACE_REF_MODE="$ROCS_WORKSPACE_REF_MODE" exec "$ROCS_BIN" "$@"
     ;;
-  vendored-uvx)
-    exec uvx -n --from "$repo_root/tools/rocs-cli" rocs "$@"
+  rocs-bin-missing)
+    die "ROCS_BIN is set but not executable/resolvable: $ROCS_BIN"
     ;;
-  vendored-uv)
-    exec uv tool run --from "$repo_root/tools/rocs-cli" rocs "$@"
+  workspace-core-venv)
+    ROCS_WORKSPACE_ROOT="$ROCS_WORKSPACE_ROOT" ROCS_WORKSPACE_REF_MODE="$ROCS_WORKSPACE_REF_MODE" exec "$workspace_rocs_repo/.venv/bin/rocs" "$@"
     ;;
-  vendored-missing-runtime)
-    die "vendored tools/rocs-cli detected but uv/uvx is missing"
-    ;;
-  local-project-uv)
-    exec uv --project "$repo_root" run rocs "$@"
-    ;;
-  local-project-python)
-    exec python -m rocs_cli "$@"
+  workspace-core-uvx)
+    ROCS_WORKSPACE_ROOT="$ROCS_WORKSPACE_ROOT" ROCS_WORKSPACE_REF_MODE="$ROCS_WORKSPACE_REF_MODE" exec uvx -n --from "$workspace_rocs_repo" rocs "$@"
     ;;
   workspace-core-uv)
-    exec uv --project "$core_project_default" run rocs "$@"
+    ROCS_WORKSPACE_ROOT="$ROCS_WORKSPACE_ROOT" ROCS_WORKSPACE_REF_MODE="$ROCS_WORKSPACE_REF_MODE" exec uv tool run --from "$workspace_rocs_repo" rocs "$@"
     ;;
   path-rocs)
-    exec rocs "$@"
+    ROCS_WORKSPACE_ROOT="$ROCS_WORKSPACE_ROOT" ROCS_WORKSPACE_REF_MODE="$ROCS_WORKSPACE_REF_MODE" exec rocs "$@"
     ;;
   *)
-    die "unable to locate rocs runner; install uv or set ROCS_BIN"
+    die "unable to locate rocs runner; set ROCS_BIN, set ROCS_WORKSPACE_ROOT, or install rocs on PATH"
     ;;
 esac

@@ -55,7 +55,7 @@ monorepo_repo_name:
   help: "Monorepo repository name used in package repository.url metadata"
 
 _tasks:
-  - "chmod +x scripts/sync-to-live.sh scripts/docs-list.sh scripts/release-check.sh scripts/validate-structure.sh scripts/validate-structure.mjs scripts/quality-gate.sh"
+  - "chmod +x scripts/docs-list.sh scripts/release-check.sh scripts/validate-structure.sh scripts/validate-structure.mjs scripts/quality-gate.sh"
   - "sh -c 'if [ \"{{ scaffold_mode }}\" = \"standalone-repo\" ]; then chmod +x scripts/install-hooks.sh .githooks/pre-commit .githooks/pre-push && git init -q && bash ./scripts/install-hooks.sh; fi'"
 
 _message_after_copy: |
@@ -70,6 +70,11 @@ _message_after_copy: |
     npm install
     npm run docs:list
     npm run check
+
+  Live package activation:
+    - install the package into Pi from the package path via `pi install {{ _copier_conf.dst_path }}`
+    - then run `/reload`
+    - then verify with a real command/tool call
 
   Copier policy:
     - Commit .copier-answers.yml

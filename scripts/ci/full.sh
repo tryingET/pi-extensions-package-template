@@ -13,9 +13,10 @@ if [ -f "./governance/work-items.json" ] && [ -f "./crates/ak-cli/Cargo.toml" ] 
 fi
 
 if [ -x "./scripts/rocs.sh" ] && [ -f "./ontology/manifest.yaml" ]; then
-  workspace_root="${ROCS_WORKSPACE_ROOT:-$HOME}"
+  workspace_root_default="$(CDPATH= cd -- "$repo_root/../../.." && pwd)"
+  workspace_root="${ROCS_WORKSPACE_ROOT:-$workspace_root_default}"
   workspace_ref_mode="${ROCS_WORKSPACE_REF_MODE:-loose}"
-  core_rocs_default="$HOME/ai-society/core/rocs-cli/.venv/bin/rocs"
+  core_rocs_default="$workspace_root/core/rocs-cli/.venv/bin/rocs"
   rocs_bin="${ROCS_BIN:-}"
 
   if [ -z "$rocs_bin" ] && [ -x "$core_rocs_default" ]; then
