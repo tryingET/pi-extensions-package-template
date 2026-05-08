@@ -15,6 +15,8 @@ Purpose: maintain Copier template source. Not generated target repo.
 - Generated package docs should prefer `docs/project/` for dated RFCs/runbooks/notes and `docs/adr/` for adopted decisions; do not reintroduce package-local `docs/dev/` trees.
 - Generated monorepo packages should use plain installed `ak` for AK task/work-item operations rather than inventing package-local wrappers or copied launcher scripts.
 - Generated monorepo packages should also state that direction authority stays at the monorepo root, with `ak direction import|check|export` run against the root repo context rather than package-local direction state.
+- For AK-native task, direction, or route work, read the relevant AK task and route/open-frame status before inventing new work; generic `proceed` continues the active execution task when one exists and does not authorize lifecycle closeout, source-owner mutation, publication, or knowledge promotion.
+- Handoff instead of editing by convenience when facts belong to Prompt Vault, ROCS, AK runtime, Pi/runtime, KES, steward/publication, template propagation, Oracle/DSPx, or another repo owner.
 - `copier update` may be used for controlled L2 baseline sync; re-validate template guardrails afterward.
 
 ## Validation loop
