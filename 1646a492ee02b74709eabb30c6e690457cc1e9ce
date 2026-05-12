@@ -1,0 +1,16 @@
+Promoted from candidate peer candidatepeer-mp2qdnba-e63eeefd (branch candidate/default-component-release-mode-2; worktree /home/tryinget/.local/state/pi-quests/worktrees/pi-extensions-template-811ec643/template-default-component-release-mode-2).
+
+Operator intent: make pi-extensions-template default new monorepo/simple packages to root-managed component release metadata.
+
+Why prior packages could still be releaseConfigMode=none:
+- template accepts explicit release_config_mode=none opt-out;
+- existing .copier-answers.yml values persist across update/recopy;
+- older generated packages carried explicit none before the monorepo root release automation became the standard.
+
+Validation:
+- bash ./scripts/template-guardrails.sh: pass
+- SCAFFOLD_MODE=simple-package bash ./scripts/generated-contract-test.sh: pass
+- bash ./scripts/smoke-test-template.sh: pass
+- SKIP_PACKAGED_CLI_SMOKE=1 bash ./scripts/release-check-template.sh: pass
+- git diff --check: pass
+- pre-commit hook during git commit: Template guardrails passed
