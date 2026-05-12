@@ -1,0 +1,22 @@
+Scoped package identity guardrails for pi-extensions-template.
+
+Controller commit: 17930bb
+AK task: #2885
+Evidence: #1846
+
+Promoted changes:
+- Generated standalone validate-structure.mjs now reads .copier-answers.yml and requires package.json#name to equal @<npm_org>/<repo_name>.
+- Generated simple/monorepo-package validate-structure.mjs enforces the same scoped npm identity.
+- Root scripts/template-guardrails.sh now fails if either package.json.jinja template loses the scoped name template "@{{ npm_org }}/{{ repo_name }}".
+- Template docs now explicitly distinguish scoped npm package identity from unscoped release component/tag identity.
+
+Validation:
+- bash ./scripts/template-guardrails.sh (pass)
+- bash ./scripts/smoke-test-template.sh (pass)
+- SCAFFOLD_MODE=simple-package bash ./scripts/smoke-test-template.sh (pass)
+- bash ./scripts/generated-contract-test.sh (pass)
+- SCAFFOLD_MODE=simple-package bash ./scripts/generated-contract-test.sh (pass)
+- git diff --check (pass)
+
+Notes:
+- node ~/ai-society/core/agent-scripts/scripts/docs-list.mjs --docs . --strict still fails on pre-existing missing frontmatter/read_when issues in root/generated prompt and ontology docs; those were not introduced or broadened by this scoped-package guardrail slice.
