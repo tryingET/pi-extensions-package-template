@@ -177,8 +177,19 @@ try {
   if (!rpConfig.packages || !rpConfig.packages["."]) {
     fail(".release-please-config.json must include packages['.']");
   }
+
+  const scopedNameTemplate = '"name": "@{{ npm_org }}/{{ repo_name }}"';
+  for (const templatePath of [
+    "copier-template/package.json.jinja",
+    "copier-template-monorepo-package/package.json.jinja",
+  ]) {
+    const template = fs.readFileSync(templatePath, "utf8");
+    if (!template.includes(scopedNameTemplate)) {
+      fail(`${templatePath} must keep package.json name templated as ${scopedNameTemplate}`);
+    }
+  }
 } catch (error) {
-  fail(`Failed to validate root package metadata: ${error.message}`);
+  fail(`Failed to validate root package metadata/templates: ${error.message}`);
 }
 
 process.exit(failed ? 1 : 0);

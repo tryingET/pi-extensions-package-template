@@ -82,6 +82,13 @@ Then in Pi:
 
 ## Release metadata
 
+This scaffold keeps npm identity separate from release component identity:
+
+- npm package name: `@{{ npm_org }}/{{ repo_name }}`
+- release component/tag stem: `{{ release_component_key }}` (for example `{{ release_component_key }}-vX.Y.Z`)
+
+The npm package name must stay scoped. The release component should usually stay unscoped so root release-please component tags remain readable and stable.
+
 This scaffold writes component metadata in `package.json` under `x-pi-template`:
 
 - `workspacePath`

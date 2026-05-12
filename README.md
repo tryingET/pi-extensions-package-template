@@ -85,7 +85,12 @@ copier copy --trust --vcs-ref HEAD ~/ai-society/softwareco/owned/pi-extensions-t
   -d github_maintainer=<github-handle>
 ```
 
-If you publish under a different npm scope/name, update [package.json](package.json) first.
+Generated package identity is deliberately split:
+
+- npm package name: `@<npm_org>/<repo-name>` (default `@tryinget/<repo-name>`)
+- release component key/tag stem: `<repo-name>` (for example `<repo-name>-vX.Y.Z`)
+
+If you publish under a different npm scope/name, set `npm_org` during generation and keep `release_component_key` unscoped unless you intentionally want a different release-please component identity.
 
 ## Bootstrap npm publish helper (all packages)
 

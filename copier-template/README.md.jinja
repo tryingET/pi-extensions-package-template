@@ -13,6 +13,13 @@ system4d:
 
 A pi extension package for {{ command_name }} workflows.
 
+Package/release identity is deliberately split:
+
+- npm package name: `@{{ npm_org }}/{{ repo_name }}`
+- release tag: `vX.Y.Z` for standalone repos
+
+Keep the npm package name scoped even when the repository or command name is unscoped.
+
 ## Install
 
 ```bash

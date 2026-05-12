@@ -18,12 +18,44 @@ function readJsonSafe(filePath) {
   }
 }
 
+function readTextSafe(filePath) {
+  try {
+    return fs.readFileSync(filePath, "utf8");
+  } catch {
+    return undefined;
+  }
+}
+
+function readCopierAnswer(key) {
+  const answers = readTextSafe(".copier-answers.yml");
+  if (!answers) return undefined;
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = new RegExp(`^${escaped}:\\s*['"]?([^'"\\r\\n]+)['"]?\\s*$`, "m").exec(answers);
+  return match?.[1]?.trim();
+}
+
+function validateScopedPackageName(p) {
+  const npmOrg = readCopierAnswer("npm_org");
+  const repoName = readCopierAnswer("repo_name");
+  if (!npmOrg || !repoName) {
+    fail(".copier-answers.yml must include npm_org and repo_name for package name validation");
+    return;
+  }
+
+  const expectedName = `@${npmOrg.replace(/^@/, "")}/${repoName}`;
+  if (p.name !== expectedName) {
+    fail(`package.json name must be scoped npm identity '${expectedName}' (got '${p.name}')`);
+  }
+}
+
 function validatePackageJson() {
   const p = readJsonSafe("package.json");
   if (!p) {
     fail("Failed to parse package.json");
     return;
   }
+
+  validateScopedPackageName(p);
 
   if (!Array.isArray(p.keywords) || !p.keywords.includes("pi-package")) {
     fail("package.json missing keywords entry: pi-package");
