@@ -34,6 +34,10 @@ function readCopierAnswer(key) {
   return match?.[1]?.trim();
 }
 
+function expectedReleaseConfigMode() {
+  return readCopierAnswer("release_config_mode") ?? "component";
+}
+
 function validateScopedPackageName(p) {
   const npmOrg = readCopierAnswer("npm_org");
   const repoName = readCopierAnswer("repo_name");
@@ -153,6 +157,12 @@ function validatePackageJson() {
     }
     if (!["component", "none"].includes(templateMeta.releaseConfigMode)) {
       fail("package.json x-pi-template.releaseConfigMode must be 'component' or 'none'");
+    }
+    const expectedMode = expectedReleaseConfigMode();
+    if (templateMeta.releaseConfigMode !== expectedMode) {
+      fail(
+        `package.json x-pi-template.releaseConfigMode must match .copier-answers.yml release_config_mode '${expectedMode}' (got '${templateMeta.releaseConfigMode}')`,
+      );
     }
   }
 

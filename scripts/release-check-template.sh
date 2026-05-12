@@ -173,6 +173,31 @@ install_generated_repo_deps() {
   )
 }
 
+assert_generated_release_config_mode() {
+  local repo_dir="$1"
+  local expected_mode="$2"
+  (
+    cd "$repo_dir"
+    node - "$expected_mode" <<'NODE'
+const fs = require("node:fs");
+const expectedMode = process.argv[2];
+const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+const answers = fs.readFileSync(".copier-answers.yml", "utf8");
+const actualMode = pkg["x-pi-template"]?.releaseConfigMode;
+if (actualMode !== expectedMode) {
+  console.error(`Expected x-pi-template.releaseConfigMode=${expectedMode}, got ${actualMode}`);
+  process.exit(1);
+}
+const escaped = expectedMode.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const answerPattern = new RegExp(`^release_config_mode:\\s*['\"]?${escaped}['\"]?\\s*$`, "m");
+if (!answerPattern.test(answers)) {
+  console.error(`Expected .copier-answers.yml release_config_mode=${expectedMode}`);
+  process.exit(1);
+}
+NODE
+  )
+}
+
 echo "== npm pack"
 TARBALL="$(npm pack --silent | tail -n 1)"
 TARBALL_PATH="$ROOT_DIR/$TARBALL"
@@ -204,6 +229,7 @@ else
   echo "== local CLI simple-package generation smoke"
   LOCAL_MONO_SMOKE_DIR="$TMP_DIR/local-cli-monorepo-smoke"
   node ./bin/new-pi-extension-repo.mjs local-cli-monorepo-smoke --target-dir "$LOCAL_MONO_SMOKE_DIR" --mode simple-package --workspace-path packages/local-cli-monorepo-smoke --release-component local-cli-monorepo-smoke --monorepo-repo pi-extensions
+  assert_generated_release_config_mode "$LOCAL_MONO_SMOKE_DIR" component
   install_generated_repo_deps "$LOCAL_MONO_SMOKE_DIR"
   (
     cd "$LOCAL_MONO_SMOKE_DIR"
@@ -223,6 +249,7 @@ else
     echo "== packaged CLI simple-package generation smoke"
     PACKAGED_MONO_SMOKE_DIR="$TMP_DIR/packaged-cli-monorepo-smoke"
     npm exec --yes --package "$TARBALL_PATH" -- new-pi-extension-repo packaged-cli-monorepo-smoke --target-dir "$PACKAGED_MONO_SMOKE_DIR" --mode simple-package --workspace-path packages/packaged-cli-monorepo-smoke --release-component packaged-cli-monorepo-smoke --monorepo-repo pi-extensions
+    assert_generated_release_config_mode "$PACKAGED_MONO_SMOKE_DIR" component
     install_generated_repo_deps "$PACKAGED_MONO_SMOKE_DIR"
     (
       cd "$PACKAGED_MONO_SMOKE_DIR"

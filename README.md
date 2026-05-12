@@ -35,6 +35,7 @@ npm exec --yes --package @tryinget/pi-extensions-package-template -- \
 
 Default scaffold mode is `simple-package`.
 `monorepo-package` remains a compatibility alias for the same one-package monorepo scaffold.
+For `simple-package`/`monorepo-package`, release config mode defaults to `component`; omit `--release-config-mode` for root-managed component release metadata. Use `--release-config-mode none` only as an explicit opt-out when the monorepo root deliberately manages releases another way.
 
 ## Terminology clarification
 
@@ -89,6 +90,7 @@ Generated package identity is deliberately split:
 
 - npm package name: `@<npm_org>/<repo-name>` (default `@tryinget/<repo-name>`)
 - release component key/tag stem: `<repo-name>` (for example `<repo-name>-vX.Y.Z`)
+- release config mode: `component` by default for root-managed component release metadata
 
 If you publish under a different npm scope/name, set `npm_org` during generation and keep `release_component_key` unscoped unless you intentionally want a different release-please component identity.
 
@@ -161,7 +163,7 @@ PI_GITHUB_MAINTAINER=tryingET \
   bash ~/ai-society/softwareco/owned/pi-extensions-template/new-pi-extension-repo.sh <repo-name> [command-name]
 ```
 
-Generate in simple-package mode (default):
+Generate in simple-package mode (default, release config mode `component`):
 
 ```bash
 PI_SCAFFOLD_MODE=simple-package \

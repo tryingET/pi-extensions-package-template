@@ -15,7 +15,7 @@ Monorepo package scaffold for `{{ command_name }}` extension workflows.
 
 - Workspace path: `{{ workspace_relative_path }}`
 - Release component key: `{{ release_component_key }}`
-- Release config mode: `{{ release_config_mode }}`
+- Release config mode: `{{ release_config_mode }}` (default: `component`)
 
 ## Runtime dependencies
 
@@ -94,6 +94,8 @@ This scaffold writes component metadata in `package.json` under `x-pi-template`:
 - `workspacePath`
 - `releaseComponent`
 - `releaseConfigMode`
+
+Default `releaseConfigMode` is `component`, meaning the package expects root-managed component release metadata such as a monorepo release-please component map. Use `none` only as an explicit opt-out when the monorepo root deliberately manages releases another way.
 
 Use these values when wiring monorepo-level release-please component maps.
 

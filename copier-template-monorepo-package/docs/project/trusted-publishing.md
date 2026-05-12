@@ -25,11 +25,11 @@ system4d:
 - `x-pi-template` metadata should align with root component mapping:
   - `workspacePath`
   - `releaseComponent`
-  - `releaseConfigMode`
+  - `releaseConfigMode` (default/root-managed baseline: `component`; `none` is an explicit opt-out only)
 
 ## Root workflow expectations
 
-- Root `release-please` workflow must keep component map aligned with package metadata.
+- Root `release-please` workflow must keep component map aligned with package metadata when `releaseConfigMode` is `component`.
 - Publish workflow should run npm >= 11.5.1 for trusted publishing compatibility.
 - Actions policy + permissions at repo level must allow release/publish workflows.
 

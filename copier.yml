@@ -47,7 +47,7 @@ release_config_mode:
   choices:
     - "component"
     - "none"
-  help: "Release metadata mode for monorepo packages"
+  help: "Release metadata mode for monorepo packages; default component keeps release metadata root-managed"
 
 monorepo_repo_name:
   type: str
