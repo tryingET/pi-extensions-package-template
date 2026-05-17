@@ -1,5 +1,5 @@
 ---
-summary: "Canonical handoff for continuing template work in pi-extensions-template with tech-stack-core review and reduced-form output decisions still open."
+summary: "Canonical handoff for continuing template work in pi-extensions-template with engineering-core review and reduced-form output decisions still open."
 read_when:
   - "Starting the next session in the canonical template repo."
 system4d:
@@ -20,10 +20,10 @@ system4d:
 
 - This is the canonical L3 template source.
 - Package-first generation is still the default.
-- `pi-extensions` root now owns more of the `tech-stack-core` review/validation policy surface.
+- `pi-extensions` root now owns more of the `engineering-core` review/validation policy surface.
 - Template outputs currently still include tech-stack artifacts such as:
-  - `docs/tech-stack.local.md`
-  - `policy/stack-lane.json`
+  - `docs/engineering.local.md`
+  - `policy/engineering-lane.json`
 - the next review should decide whether the **reduced form** is better for package-shaped outputs:
   - root repo (`pi-extensions`) keeps the policy/validation stance
   - generated package templates emit only the local override file needed for repo-specific divergence
@@ -39,12 +39,12 @@ system4d:
 
 1. `next_session_prompt.md`
 2. `README.md`
-3. `copier-template/docs/tech-stack.local.md`
-4. `copier-template/policy/stack-lane.json`
+3. `copier-template/docs/engineering.local.md`
+4. `copier-template/policy/engineering-lane.json`
 5. `copier-template/scripts/validate-structure.sh`
 6. `copier-template/scripts/validate-structure.mjs`
-7. `copier-template-monorepo-package/docs/tech-stack.local.md`
-8. `copier-template-monorepo-package/policy/stack-lane.json`
+7. `copier-template-monorepo-package/docs/engineering.local.md`
+8. `copier-template-monorepo-package/policy/engineering-lane.json`
 9. `copier-template-monorepo-package/scripts/validate-structure.sh`
 10. `copier-template-monorepo-package/scripts/validate-structure.mjs`
 11. `copier-template/next_session_prompt.md.jinja`
@@ -53,12 +53,12 @@ system4d:
 
 ## Continue with
 
-1. Review the `tech-stack-core` boundary between:
+1. Review the `engineering-core` boundary between:
    - root policy in `pi-extensions`
    - local override files in generated repos/packages
 2. Decide whether package-shaped templates should move to the reduced form:
-   - keep `docs/tech-stack.local.md`
-   - drop `policy/stack-lane.json` from template output if the policy truly belongs upstream
+   - keep `docs/engineering.local.md`
+   - drop `policy/engineering-lane.json` from template output if the policy truly belongs upstream
    - only do this if validation/review surfaces remain coherent
 3. Review handoff/session-prompt implications before changing template output:
    - generic `NEXT_SESSION_PROMPT` templates

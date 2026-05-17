@@ -70,9 +70,9 @@ required_files=(
   "docs/project/contributing.md"
   "docs/project/extension-sop.md"
   "docs/project/trusted-publishing.md"
-  "docs/tech-stack.local.md"
+  "docs/engineering.local.md"
   "docs/adr/.gitkeep"
-  "policy/stack-lane.json"
+  "policy/engineering-lane.json"
   ".pi/prompts/commit.md"
   "scripts/install-hooks.sh"
   "scripts/docs-list.sh"
@@ -292,7 +292,7 @@ if ! grep -Eq "^github:[A-Za-z0-9][A-Za-z0-9-]*" ".github/VOUCHED.td"; then
   ((errors+=1))
 fi
 
-# Run Node.js validation (package.json, release-please, stack-lane, biome-ignore)
+# Run Node.js validation (package.json, release-please, engineering-lane, biome-ignore)
 if command -v node >/dev/null 2>&1; then
   if ! node "$ROOT_DIR/scripts/validate-structure.mjs"; then
     ((errors+=1))

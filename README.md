@@ -238,13 +238,13 @@ Generated scaffold includes (mode-dependent):
   - `.github/workflows/vouch-manage.yml`
 
 TypeScript lane reference (for generated repos):
-- `uv tool run --from ~/ai-society/core/tech-stack-core tech-stack-core show pi-ts --prefer-repo`
-- pinned lane metadata: `policy/stack-lane.json`
+- `uv tool run --from ~/ai-society/core/engineering-core engineering-core show pi-ts --prefer-repo`
+- pinned lane metadata: `policy/engineering-lane.json`
 - optional companions when a package genuinely benefits:
   - `fast-check` for parser/rendering/selection invariants
   - `@cucumber/cucumber` for executable Gherkin/operator workflows
   - `nunjucks` for reusable text/config/prompt/file templates
-  - `tech-stack-pi-ts.ts-quality.md` when the package explicitly adopts deterministic screening with `ts-quality`
+  - `engineering-pi-ts.ts-quality.md` when the package explicitly adopts deterministic screening with `ts-quality`
 - when a generated package adopts `ts-quality`, prefer repo-local rollout truth in `docs/project/ts-quality-current-vs-target.md` and keep the detailed adoption doctrine upstream in `~/ai-society/softwareco/owned/ts-quality/docs/adoption/`
 
 ## Template-source guardrails (this repo)

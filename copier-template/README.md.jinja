@@ -77,7 +77,7 @@ It enforces structure validation, Biome lint checks, optional TypeScript typeche
   - `npm run lint` (check-only)
   - `npm run typecheck`
 - lane metadata:
-  - [policy/stack-lane.json](policy/stack-lane.json)
+  - [policy/engineering-lane.json](policy/engineering-lane.json)
 
 ## Release + security baseline
 
@@ -180,17 +180,17 @@ Resolution order:
 TypeScript lane reference for pi extensions:
 
 ```bash
-uv tool run --from ~/ai-society/core/tech-stack-core tech-stack-core show pi-ts --prefer-repo
+uv tool run --from ~/ai-society/core/engineering-core engineering-core show pi-ts --prefer-repo
 ```
 
-Pinned lane metadata lives in [policy/stack-lane.json](policy/stack-lane.json).
+Pinned lane metadata lives in [policy/engineering-lane.json](policy/engineering-lane.json).
 
 Optional pi-ts companions for generated packages (add only when they materially help):
 
 - `fast-check` for parser/rendering/selection invariants
 - `@cucumber/cucumber` for executable Gherkin/operator workflows
 - `nunjucks` for reusable text/config/prompt/file templates
-- `tech-stack-pi-ts.ts-quality.md` when the package explicitly adopts deterministic screening with `ts-quality`
+- `engineering-pi-ts.ts-quality.md` when the package explicitly adopts deterministic screening with `ts-quality`
 
 If this package adopts `ts-quality`, prefer repo-local rollout truth in `docs/project/ts-quality-current-vs-target.md` and keep the detailed adoption doctrine upstream in `~/ai-society/softwareco/owned/ts-quality/docs/adoption/`.
 
@@ -235,7 +235,7 @@ Then in Pi:
 - [Project vision](docs/project/vision.md)
 - [Project incentives](docs/project/incentives.md)
 - [Project resources](docs/project/resources.md)
-- [Tech stack local override](docs/tech-stack.local.md)
+- [Engineering local override](docs/engineering.local.md)
 - [Contributor guide](docs/project/contributing.md)
 - [Extension SOP](docs/project/extension-sop.md)
 - [Trusted publishing runbook](docs/project/trusted-publishing.md)

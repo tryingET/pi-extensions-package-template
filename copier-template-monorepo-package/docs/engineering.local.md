@@ -1,5 +1,5 @@
 ---
-summary: "Local override notes for the shared tech-stack-core lane used by this repo."
+summary: "Local override notes for the shared engineering-core lane used by this repo."
 read_when:
   - "Aligning implementation decisions with the TypeScript stack baseline."
   - "Reconciling differences between generic TS guidance and pi extension constraints."
@@ -10,11 +10,11 @@ system4d:
   fog: "External lane guidance may evolve independently of this repo."
 ---
 
-# tech-stack.local (pi extension flavor)
+# engineering.local (pi extension flavor)
 
 Primary lane:
 
-- `tech-stack-core show pi-ts --prefer-repo`
+- `engineering-core show pi-ts --prefer-repo`
 
 Repo-local emphasis:
 
@@ -25,11 +25,11 @@ Repo-local emphasis:
 - Biome path strategy: lint repo files by default, but exclude artifact/vendor buckets (`external/`, `ontology/`, build outputs, generated/minified files).
 - Quality lane gate: `npm run quality:pre-commit`, `npm run quality:pre-push`, `npm run quality:ci`.
 - Auto-fix workflow: `npm run fix` (before commit or when applying AI-generated diffs).
-- Pin lane metadata in `policy/stack-lane.json` (`lane: ts`, pinned `tech_stack_core.ref`).
+- Pin lane metadata in `policy/engineering-lane.json` (`lane: ts`, pinned `engineering_core.ref`).
 - Validate structural/docs invariants with `npm run check`.
 - Optional pi-ts companions (add only when the package actually benefits):
   - `fast-check` for parser/rendering/selection invariants.
   - `@cucumber/cucumber` only when executable operator/workflow scenarios materially improve shared understanding.
   - `nunjucks` for reusable text/config/prompt/file templates when plain typed render functions are no longer enough.
-  - `tech-stack-pi-ts.ts-quality.md` when the package explicitly adopts deterministic screening with `ts-quality`.
+  - `engineering-pi-ts.ts-quality.md` when the package explicitly adopts deterministic screening with `ts-quality`.
 - If the package adopts `ts-quality`, prefer repo-local rollout truth in `docs/project/ts-quality-current-vs-target.md` and keep the detailed adoption doctrine upstream in `~/ai-society/softwareco/owned/ts-quality/docs/adoption/`.
