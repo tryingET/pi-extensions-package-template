@@ -4,8 +4,8 @@ read_when:
   - "Starting the next session in the canonical template repo."
 system4d:
   container: "Session handoff artifact for pi-extensions-template."
-  compass: "Keep template outputs minimal, review tech-stack policy boundaries deliberately, and avoid encoding root policy into every generated package by default."
-  engine: "Validate template -> review tech-stack surfaces -> review session-prompt surfaces -> decide reduced-form template boundary -> prepare follow-up change carefully."
+  compass: "Keep template outputs minimal, review engineering policy boundaries deliberately, and avoid encoding root policy into every generated package by default."
+  engine: "Validate template -> review engineering surfaces -> review session-prompt surfaces -> decide reduced-form template boundary -> prepare follow-up change carefully."
   fog: "Main risks are treating template output as the policy source, forgetting the root repo now owns more validation policy, or missing session/handoff prompt surfaces when changing template behavior."
 ---
 
@@ -21,7 +21,7 @@ system4d:
 - This is the canonical L3 template source.
 - Package-first generation is still the default.
 - `pi-extensions` root now owns more of the `engineering-core` review/validation policy surface.
-- Template outputs currently still include tech-stack artifacts such as:
+- Template outputs currently still include engineering-core artifacts such as:
   - `docs/engineering.local.md`
   - `policy/engineering-lane.json`
 - the next review should decide whether the **reduced form** is better for package-shaped outputs:
