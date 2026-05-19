@@ -1,3 +1,10 @@
+---
+summary: "Governance notes for pi-extensions-template."
+read_when:
+  - "Working with pi-extensions-template governance surfaces."
+type: "reference"
+---
+
 # Project Work Items
 
 `governance/work-items.json` is the project-local planning model for this repository.

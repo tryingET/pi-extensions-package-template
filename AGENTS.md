@@ -1,3 +1,10 @@
+---
+summary: "Repo operating guidance for pi-extensions-template."
+read_when:
+  - "Starting work in pi-extensions-template or changing template control-plane files."
+type: "reference"
+---
+
 # AGENTS.md — template repo guardrails
 
 Purpose: maintain Copier template source. Not generated target repo.

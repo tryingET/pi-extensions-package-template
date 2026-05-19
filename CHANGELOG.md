@@ -1,3 +1,10 @@
+---
+summary: "Change log for pi-extensions-template."
+read_when:
+  - "Reviewing template history or release changes."
+type: "reference"
+---
+
 # Changelog
 
 > Repository/package identity is transitioning to `tryingET/pi-extensions-package-template` / `@tryinget/pi-extensions-package-template`.

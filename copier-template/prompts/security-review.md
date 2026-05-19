@@ -1,4 +1,7 @@
 ---
+summary: "Security review prompt template."
+read_when:
+  - "Using or updating the security-review prompt template."
 description: Review a change for security risks and mitigations
 system4d:
   container: "Prompt template for security-focused review."

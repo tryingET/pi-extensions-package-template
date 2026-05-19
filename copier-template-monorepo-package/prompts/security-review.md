@@ -1,4 +1,7 @@
 ---
+summary: "Monorepo package security review prompt template."
+read_when:
+  - "Using or updating the monorepo package security-review prompt template."
 description: Review a change for security risks and mitigations
 system4d:
   container: "Prompt template for security-focused review."

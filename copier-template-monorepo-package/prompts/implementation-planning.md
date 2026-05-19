@@ -1,4 +1,7 @@
 ---
+summary: "Monorepo package implementation planning prompt template."
+read_when:
+  - "Using or updating the monorepo package implementation-planning prompt template."
 description: Draft an implementation plan for a requested change
 system4d:
   container: "Prompt template for implementation planning."

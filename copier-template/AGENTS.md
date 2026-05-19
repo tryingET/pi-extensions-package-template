@@ -31,7 +31,7 @@ system4d:
 - Run `npm run docs:list` when task scope touches architecture/process/domain docs.
 - Use `npm run docs:list:workspace` for workspace/monorepo scans.
 - For TypeScript extension conventions, consult `engineering-core` lane `pi-ts`:
-  - `uv tool run --from ~/ai-society/core/engineering-core engineering-core show pi-ts --prefer-repo`
+  - `uv tool -n run --from ~/ai-society/core/engineering-core engineering-core show pi-ts`
 - If your docs-list script is not at `~/ai-society/core/agent-scripts/scripts/docs-list.mjs`, set `DOCS_LIST_SCRIPT`.
 - Put dated RFCs, runbooks, and evidence/progress notes in `docs/project/`.
 - Put adopted architecture decisions in `docs/adr/`.

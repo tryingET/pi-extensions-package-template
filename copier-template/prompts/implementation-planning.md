@@ -1,4 +1,7 @@
 ---
+summary: "Implementation planning prompt template."
+read_when:
+  - "Using or updating the implementation-planning prompt template."
 description: Draft an implementation plan for a requested change
 system4d:
   container: "Prompt template for implementation planning."

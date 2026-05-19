@@ -1,3 +1,10 @@
+---
+summary: "Ontology index for pi-extensions-template."
+read_when:
+  - "Updating or validating pi-extensions-template ontology surfaces."
+type: "reference"
+---
+
 # Ontology Index (repo)
 
 Start here when browsing manually.
