@@ -14,7 +14,31 @@ system4d:
 
 Primary lane:
 
-- `engineering-core show pi-ts --prefer-repo`
+- `engineering-core show pi-ts`
+
+Catalog/list commands:
+
+```bash
+uv tool -n run --from ~/ai-society/core/engineering-core engineering-core catalog --pretty
+uv tool -n run --from ~/ai-society/core/engineering-core engineering-core list-disciplines
+uv tool -n run --from ~/ai-society/core/engineering-core engineering-core list-templates
+```
+
+Selected disciplines:
+
+- `validation`
+- `testing`
+- `security-privacy` — generated Pi extension packages must preserve permission, publishing, and local operator safety boundaries.
+- `documentation`
+- `dependency-governance`
+- `specification-and-dsls` — template metadata, package manifests, prompts, and generated policy files are executable repo contract surfaces.
+- `engineering-reasoning` — use for explicit template/package boundary and adoption-shape decisions.
+
+Not selected by default:
+
+- `local-first-data` — this template surface does not itself own durable runtime data, migrations, or sync behavior.
+- `observability` — generated packages may adopt it when they own runtime telemetry/evidence surfaces.
+- `accessibility` / `design-system` — generated packages may adopt these when they own UI/design surfaces.
 
 Repo-local emphasis:
 

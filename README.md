@@ -1,3 +1,10 @@
+---
+summary: "pi-extensions-template overview and template usage."
+read_when:
+  - "Orienting to pi-extensions-template or generated extension package templates."
+type: "reference"
+---
+
 # pi extension package template
 
 Canonical source checkout: `~/ai-society/softwareco/owned/pi-extensions-template`
@@ -238,7 +245,7 @@ Generated scaffold includes (mode-dependent):
   - `.github/workflows/vouch-manage.yml`
 
 TypeScript lane reference (for generated repos):
-- `uv tool run --from ~/ai-society/core/engineering-core engineering-core show pi-ts --prefer-repo`
+- `uv tool -n run --from ~/ai-society/core/engineering-core engineering-core show pi-ts`
 - pinned lane metadata: `policy/engineering-lane.json`
 - optional companions when a package genuinely benefits:
   - `fast-check` for parser/rendering/selection invariants

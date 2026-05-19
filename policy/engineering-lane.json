@@ -1,11 +1,8 @@
 {
-  "lane": "ts",
   "engineering_core": {
     "tool": "engineering-core",
-    "lane": "pi-ts",
     "repository": "https://github.com/tryingET/core_engineering-core",
-    "ref": "f9f2bdccb354bcaa3b12985f6c7698eba9df256d",
-    "command": "uv tool -n run --from ~/ai-society/core/engineering-core engineering-core show pi-ts",
+    "ref": "workspace-local-unpinned",
     "catalog_command": "uv tool -n run --from ~/ai-society/core/engineering-core engineering-core catalog --pretty",
     "list_disciplines_command": "uv tool -n run --from ~/ai-society/core/engineering-core engineering-core list-disciplines",
     "list_templates_command": "uv tool -n run --from ~/ai-society/core/engineering-core engineering-core list-templates",
@@ -17,6 +14,8 @@
       "dependency-governance",
       "specification-and-dsls",
       "engineering-reasoning"
-    ]
+    ],
+    "lane": "pi-ts",
+    "command": "uv tool -n run --from ~/ai-society/core/engineering-core engineering-core show pi-ts"
   }
 }
