@@ -54,6 +54,19 @@ uv tool -n run --from ~/ai-society/core/engineering-core engineering-core list-t
 - `npm test`
 - `npm run build`
 
+## Repo loop validation
+
+pi-extensions-template adopts `repo-loop-validation-v1` for Pi extension template maintenance loops. The machine-readable declaration lives in `policy/engineering-lane.json`.
+
+- `loop-doctor`: `just loop-doctor` (non-failing git/Node/npm/Just diagnostics)
+- `loop-verify-fast`: `just loop-verify-fast` (maps to `just check` / template guardrails)
+- `loop-impact-plan`: `just loop-impact-plan` (changed-file listing plus run/wide recommendation)
+- `loop-impact-run`: `just loop-impact-run` (maps to `just check`)
+- `loop-impact-wide`: `just loop-impact-wide` (maps to `just check-full`)
+- `loop-landing-check`: `just loop-landing-check` (maps to the repo-declared `just check-full` gate)
+
+These commands produce repo-local evidence for loop orchestration. They do not replace AK task/evidence/decision authority, template propagation approval, release approval, package publication authority, or downstream generated-repo adoption authority.
+
 ## Validation evidence expectations
 
 For engineering-core adoption metadata changes:
