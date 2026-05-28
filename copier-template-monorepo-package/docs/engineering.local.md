@@ -57,3 +57,17 @@ Repo-local emphasis:
   - `nunjucks` for reusable text/config/prompt/file templates when plain typed render functions are no longer enough.
   - `engineering-pi-ts.ts-quality.md` when the package explicitly adopts deterministic screening with `ts-quality`.
 - If the package adopts `ts-quality`, prefer repo-local rollout truth in `docs/project/ts-quality-current-vs-target.md` and keep the detailed adoption doctrine upstream in `~/ai-society/softwareco/owned/ts-quality/docs/adoption/`.
+
+## Repo loop validation
+
+This `copier-template-monorepo-package` adoption surface declares `repo-loop-validation-v1` as intentionally unavailable for the template source itself. It is a monorepo package template, not a runnable generated package checkout.
+
+- `loop-doctor`: `n/a` — generated packages own concrete diagnostics after rendering.
+- `loop-verify-fast`: `n/a` — generated packages own concrete fast validation after rendering.
+- `loop-impact-plan`: `n/a` — generated packages own changed-file impact planning after rendering.
+- `loop-impact-run`: `n/a` — generated packages own bounded impact validation after rendering.
+- `loop-impact-wide`: `n/a` — generated packages own accepted wide validation after rendering.
+- `loop-landing-check`: `n/a` — generated packages own local landing/readiness gates after rendering.
+
+Template-source validation remains owned by the `pi-extensions-template` root scripts, especially `npm run check` and `npm run check:full`. Loop command success in generated packages remains evidence only and does not replace release approval, Pi runtime install/reload proof, or monorepo owner authority.
+

@@ -17,6 +17,18 @@
       "dependency-governance",
       "specification-and-dsls",
       "engineering-reasoning"
-    ]
+    ],
+    "loop_validation": {
+      "version": "repo-loop-validation-v1",
+      "contract_doc": "docs/engineering.local.md#repo-loop-validation",
+      "commands": {
+        "loop-doctor": "n/a: template source surface only; generated package owns concrete loop-doctor command after rendering",
+        "loop-verify-fast": "n/a: template source surface only; generated package owns concrete loop-verify-fast command after rendering",
+        "loop-impact-plan": "n/a: template source surface only; generated package owns concrete loop-impact-plan command after rendering",
+        "loop-impact-run": "n/a: template source surface only; generated package owns concrete loop-impact-run command after rendering",
+        "loop-impact-wide": "n/a: template source surface only; generated package owns concrete loop-impact-wide command after rendering",
+        "loop-landing-check": "n/a: template source surface only; generated package owns concrete loop-landing-check command after rendering"
+      }
+    }
   }
 }
