@@ -26,7 +26,6 @@
     "scripts/validate-structure.sh",
     "scripts/validate-structure.mjs",
     "scripts/quality-gate.sh",
-    "scripts/docs-list.sh",
     ".pi/prompts/commit.md"
   ],
   "forbidden_paths": [

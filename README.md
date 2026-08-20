@@ -223,9 +223,10 @@ Generated scaffold includes (mode-dependent):
   - `docs/project/` for contributor guides, dated RFCs, runbooks, and evidence/progress notes
   - `docs/adr/` reserved for adopted architecture decisions
   - generated monorepo packages document use of the ancestor repo-root `scripts/ak.sh` wrapper for AK task/work-item operations
-- docs discovery wrapper:
-  - `scripts/docs-list.sh`
+- canonical docs discovery:
+  - direct owner implementation: `node ~/ai-society/core/agent-scripts/scripts/docs-list.mjs`
   - npm scripts: `docs:list`, `docs:list:workspace`, `docs:list:json`
+  - no generated repo- or package-local wrapper
 - release + security baseline:
   - `.github/workflows/ci.yml`
   - `.github/workflows/release-check.yml`

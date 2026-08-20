@@ -75,7 +75,6 @@ required_files=(
   "policy/engineering-lane.json"
   ".pi/prompts/commit.md"
   "scripts/install-hooks.sh"
-  "scripts/docs-list.sh"
   "scripts/release-check.sh"
   "scripts/validate-structure.sh"
   "scripts/validate-structure.mjs"
@@ -108,7 +107,6 @@ required_dirs=(
 
 required_executables=(
   "scripts/install-hooks.sh"
-  "scripts/docs-list.sh"
   "scripts/release-check.sh"
   "scripts/validate-structure.sh"
   "scripts/validate-structure.mjs"
