@@ -99,6 +99,24 @@ for release_check in "${release_check_surfaces[@]}"; do
   if ! grep -q 'export TMPDIR' "$release_check"; then
     fail "$release_check must export managed TMPDIR to child processes."
   fi
+  for credential_boundary in 'isolated_npm()' 'env -i' 'NPM_CONFIG_USERCONFIG=' 'NPM_CONFIG_GLOBALCONFIG='; do
+    if ! grep -qF "$credential_boundary" "$release_check"; then
+      fail "$release_check is missing credential boundary: $credential_boundary"
+    fi
+  done
+done
+
+if grep -R -n --include='*.jinja' '@mariozechner/' copier-template copier-template-monorepo-package >/dev/null; then
+  fail "Generated template sources must use @earendil-works Pi package ownership, not @mariozechner."
+fi
+
+for generated_root in copier-template copier-template-monorepo-package; do
+  if ! grep -q '@earendil-works/pi-coding-agent' "$generated_root/package.json.jinja"; then
+    fail "$generated_root/package.json.jinja must declare the Earendil Works coding-agent peer."
+  fi
+  if ! grep -q '@earendil-works/pi-ai' "$generated_root/package.json.jinja"; then
+    fail "$generated_root/package.json.jinja must declare the Earendil Works Pi AI peer."
+  fi
 done
 
 if [[ ! -f .gitignore ]] || ! grep -q '^\*\.tgz$' .gitignore; then

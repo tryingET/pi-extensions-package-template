@@ -25,6 +25,47 @@ export TMPDIR
 export TMP="$TMPDIR"
 export TEMP="$TMPDIR"
 
+RELEASE_HOME="$(mktemp -d "$TMPDIR/pi-template-release-home.XXXXXX")"
+RELEASE_NPM_CACHE="$(mktemp -d "$TMPDIR/pi-template-release-npm-cache.XXXXXX")"
+TMP_DIR=""
+TARBALL_PATH=""
+mkdir -p "$RELEASE_HOME/.config" "$RELEASE_HOME/.cache"
+: > "$RELEASE_HOME/user.npmrc"
+: > "$RELEASE_HOME/global.npmrc"
+
+cleanup() {
+  if [[ "${KEEP_RELEASE_ARTIFACTS:-0}" != "1" ]]; then
+    for path_to_remove in "$RELEASE_HOME" "$RELEASE_NPM_CACHE" "$TMP_DIR"; do
+      if [[ -n "$path_to_remove" && -d "$path_to_remove" ]]; then
+        rm -rf "$path_to_remove"
+      fi
+    done
+    if [[ -n "$TARBALL_PATH" && -f "$TARBALL_PATH" ]]; then
+      rm -f "$TARBALL_PATH"
+    fi
+  fi
+}
+trap cleanup EXIT
+
+isolated_npm() {
+  env -i \
+    PATH="$PATH" \
+    HOME="$RELEASE_HOME" \
+    TMPDIR="$TMPDIR" \
+    TMP="$TMPDIR" \
+    TEMP="$TMPDIR" \
+    XDG_CONFIG_HOME="$RELEASE_HOME/.config" \
+    XDG_CACHE_HOME="$RELEASE_HOME/.cache" \
+    PI_EXTENSIONS_TMPDIR="${PI_EXTENSIONS_TMPDIR:-}" \
+    NPM_CONFIG_USERCONFIG="$RELEASE_HOME/user.npmrc" \
+    npm_config_userconfig="$RELEASE_HOME/user.npmrc" \
+    NPM_CONFIG_GLOBALCONFIG="$RELEASE_HOME/global.npmrc" \
+    npm_config_globalconfig="$RELEASE_HOME/global.npmrc" \
+    NPM_CONFIG_CACHE="$RELEASE_NPM_CACHE" \
+    npm_config_cache="$RELEASE_NPM_CACHE" \
+    npm "$@"
+}
+
 NAME="$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).name")"
 VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).version")"
 REPOSITORY_URL="$(node -p "(() => { const pkg = JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')); const repo = pkg.repository; if (typeof repo === 'string') return repo.trim(); if (repo && typeof repo === 'object' && typeof repo.url === 'string') return repo.url.trim(); return ''; })()")"
@@ -42,7 +83,7 @@ if [[ "$NAME" != "${NAME,,}" ]]; then
 fi
 
 echo "== npm pack --dry-run --json"
-PACK_JSON="$(npm pack --dry-run --json)"
+PACK_JSON="$(isolated_npm pack --dry-run --json)"
 echo "$PACK_JSON"
 PACK_JSON="$(printf '%s' "$PACK_JSON" | node "$ROOT_DIR/scripts/npm-pack-json.mjs")"
 
@@ -160,7 +201,7 @@ NODE
 
 echo "== npm publish --dry-run"
 set +e
-PUBLISH_DRY_RUN_OUTPUT="$(npm publish --dry-run 2>&1)"
+PUBLISH_DRY_RUN_OUTPUT="$(isolated_npm publish --dry-run 2>&1)"
 PUBLISH_DRY_RUN_EXIT=$?
 set -e
 echo "$PUBLISH_DRY_RUN_OUTPUT"
@@ -173,29 +214,15 @@ if [[ "$PUBLISH_DRY_RUN_EXIT" -ne 0 ]]; then
   fi
 fi
 
-TMP_DIR=""
-TARBALL_PATH=""
-cleanup() {
-  if [[ "${KEEP_RELEASE_ARTIFACTS:-0}" != "1" ]]; then
-    if [[ -n "$TMP_DIR" && -d "$TMP_DIR" ]]; then
-      rm -rf "$TMP_DIR"
-    fi
-    if [[ -n "$TARBALL_PATH" && -f "$TARBALL_PATH" ]]; then
-      rm -f "$TARBALL_PATH"
-    fi
-  fi
-}
-trap cleanup EXIT
-
 install_generated_repo_deps() {
   local repo_dir="$1"
   (
     cd "$repo_dir"
     if [[ -f package-lock.json ]]; then
-      npm ci
+      isolated_npm ci
     else
-      npm install --package-lock-only --ignore-scripts
-      npm ci
+      isolated_npm install --package-lock-only --ignore-scripts
+      isolated_npm ci
     fi
   )
 }
@@ -258,7 +285,7 @@ NODE
 }
 
 echo "== npm pack"
-TARBALL="$(npm pack --silent | tail -n 1)"
+TARBALL="$(isolated_npm pack --silent | tail -n 1)"
 TARBALL_PATH="$ROOT_DIR/$TARBALL"
 echo "Tarball: $TARBALL_PATH"
 
@@ -282,7 +309,7 @@ else
   install_generated_repo_deps "$LOCAL_SMOKE_DIR"
   (
     cd "$LOCAL_SMOKE_DIR"
-    npm run check
+    isolated_npm run check
   )
 
   PI_EXTENSIONS_OWNER="$(resolve_pi_extensions_root)"
@@ -296,38 +323,39 @@ else
   install_generated_repo_deps "$LOCAL_MONO_SMOKE_DIR"
   (
     cd "$LOCAL_MONO_SMOKE_DIR"
-    PI_EXTENSIONS_TMPDIR="$TMP_DIR/local-cli-monorepo-gate" npm run check
+    PI_EXTENSIONS_TMPDIR="$TMP_DIR/local-cli-monorepo-gate" isolated_npm run check
   )
 
   if [[ "${SKIP_PACKAGED_CLI_SMOKE:-0}" != "1" ]]; then
     echo "== packaged CLI generation smoke (npm exec --package <tarball>)"
     PACKAGED_SMOKE_DIR="$TMP_DIR/packaged-cli-smoke"
-    npm exec --yes --package "$TARBALL_PATH" -- new-pi-extension-repo packaged-cli-smoke --target-dir "$PACKAGED_SMOKE_DIR" --mode standalone-repo
+    isolated_npm exec --yes --package "$TARBALL_PATH" -- new-pi-extension-repo packaged-cli-smoke --target-dir "$PACKAGED_SMOKE_DIR" --mode standalone-repo
     install_generated_repo_deps "$PACKAGED_SMOKE_DIR"
     (
       cd "$PACKAGED_SMOKE_DIR"
-      npm run check
+      isolated_npm run check
     )
 
     echo "== packaged CLI simple-package generation smoke"
     PACKAGED_MONO_HOST="$TMP_DIR/packaged-cli-monorepo-host"
     PACKAGED_MONO_SMOKE_DIR="$PACKAGED_MONO_HOST/packages/packaged-cli-monorepo-smoke"
     prepare_monorepo_host "$PACKAGED_MONO_HOST" "$PI_EXTENSIONS_OWNER"
-    npm exec --yes --package "$TARBALL_PATH" -- new-pi-extension-repo packaged-cli-monorepo-smoke --target-dir "$PACKAGED_MONO_SMOKE_DIR" --mode simple-package --workspace-path packages/packaged-cli-monorepo-smoke --release-component packaged-cli-monorepo-smoke --monorepo-repo pi-extensions
+    isolated_npm exec --yes --package "$TARBALL_PATH" -- new-pi-extension-repo packaged-cli-monorepo-smoke --target-dir "$PACKAGED_MONO_SMOKE_DIR" --mode simple-package --workspace-path packages/packaged-cli-monorepo-smoke --release-component packaged-cli-monorepo-smoke --monorepo-repo pi-extensions
     assert_generated_release_config_mode "$PACKAGED_MONO_SMOKE_DIR" component
     install_generated_repo_deps "$PACKAGED_MONO_SMOKE_DIR"
     (
       cd "$PACKAGED_MONO_SMOKE_DIR"
-      PI_EXTENSIONS_TMPDIR="$TMP_DIR/packaged-cli-monorepo-gate" npm run check
+      PI_EXTENSIONS_TMPDIR="$TMP_DIR/packaged-cli-monorepo-gate" isolated_npm run check
     )
   fi
 fi
 
 echo "== npm view ${NAME} version (pre-publish may be 404)"
 set +e
-npm view "$NAME" version --json --registry https://registry.npmjs.org/
+VIEW_OUTPUT="$(isolated_npm view "$NAME" version --json --registry https://registry.npmjs.org/ 2>&1)"
 VIEW_EXIT=$?
 set -e
+echo "$VIEW_OUTPUT"
 echo "npm view exit: $VIEW_EXIT"
 if [[ "$VIEW_EXIT" -ne 0 ]]; then
   echo "Package likely not published yet (expected for first release)."

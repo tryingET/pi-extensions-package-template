@@ -84,5 +84,18 @@ test("all release-check surfaces normalize before canonical-array parsing", () =
     assert.doesNotMatch(source, /cp "\$HOME\/\.pi\/agent\/auth\.json"/);
     assert.doesNotMatch(source, /mktemp -d \/tmp\//);
     assert.match(source, /export TMPDIR/, `${relativePath} does not export managed scratch`);
+    assert.match(source, /isolated_npm\(\)/, `${relativePath} has no sanitized npm boundary`);
+    assert.match(source, /env -i/, `${relativePath} does not clear inherited credentials`);
+    assert.match(source, /HOME="\$RELEASE_HOME"/, `${relativePath} does not isolate HOME`);
+    assert.match(source, /NPM_CONFIG_USERCONFIG=/, `${relativePath} does not isolate user npm config`);
+    assert.match(source, /NPM_CONFIG_GLOBALCONFIG=/, `${relativePath} does not isolate global npm config`);
+    assert.match(source, /PACK_JSON="\$\(isolated_npm pack --dry-run --json\)"/);
+    assert.doesNotMatch(source, /PACK_JSON="\$\(npm pack --dry-run --json\)"/);
+    if (relativePath.startsWith("copier-template")) {
+      assert.ok(
+        (source.match(/env -i/g) ?? []).length >= 3,
+        `${relativePath} must sanitize npm, pi install, and release-smoke execution`,
+      );
+    }
   }
 });

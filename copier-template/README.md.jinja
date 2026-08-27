@@ -42,8 +42,8 @@ pi install npm:@{{ npm_org }}/{{ repo_name }}
 
 This extension expects pi host runtime APIs and declares them as `peerDependencies`:
 
-- `@mariozechner/pi-coding-agent`
-- `@mariozechner/pi-ai`
+- `@earendil-works/pi-coding-agent`
+- `@earendil-works/pi-ai`
 
 When using UI APIs (`ctx.ui`), guard interactive-only behavior with `ctx.hasUI` so `pi -p` non-interactive runs stay stable.
 
@@ -115,7 +115,7 @@ npm run release:check:quick
 ```
 
 Optional: add an executable `scripts/release-smoke.sh` for extension-specific, provider-free smoke checks.
-`release-check.sh` runs it with isolated `PI_CODING_AGENT_DIR`, npm prefix/cache, `TMPDIR`, and `PACKAGE_SPEC` env vars. The generic harness never copies operator credentials; a package requiring an authenticated external smoke must define and govern that separate release surface explicitly.
+`release-check.sh` runs npm, Pi installation, and the smoke under an empty inherited environment with isolated `HOME`, Pi state, npm user/global config, prefix/cache, `TMPDIR`, and `PACKAGE_SPEC`. No operator credentials or ambient provider keys cross that boundary; a package requiring authenticated external verification must define and govern a separate release surface explicitly.
 
 Before first production release:
 
