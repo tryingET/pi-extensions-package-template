@@ -35,6 +35,41 @@ fi
 TMP_DIR="$(mktemp -d)"
 DEST_DIR="$TMP_DIR/$REPO_NAME"
 
+if [[ "$SCAFFOLD_MODE" == "simple-package" ]]; then
+  configured_root="${PI_EXTENSIONS_ROOT:-}"
+  sibling_root="$ROOT_DIR/../pi-extensions"
+  canonical_root="$HOME/ai-society/softwareco/owned/pi-extensions"
+  if [[ -n "$configured_root" && -x "$configured_root/scripts/package-quality-gate.sh" ]]; then
+    PI_EXTENSIONS_ROOT="$(cd "$configured_root" && pwd)"
+  elif [[ -x "$sibling_root/scripts/package-quality-gate.sh" ]]; then
+    PI_EXTENSIONS_ROOT="$(cd "$sibling_root" && pwd)"
+  elif [[ -x "$canonical_root/scripts/package-quality-gate.sh" ]]; then
+    PI_EXTENSIONS_ROOT="$(cd "$canonical_root" && pwd)"
+  else
+    echo "simple-package smoke requires a pi-extensions owner checkout; set PI_EXTENSIONS_ROOT to its pinned path" >&2
+    exit 1
+  fi
+
+  HOST_ROOT="$TMP_DIR/monorepo"
+  DEST_DIR="$HOST_ROOT/$WORKSPACE_RELATIVE_PATH"
+  mkdir -p \
+    "$HOST_ROOT/scripts" \
+    "$HOST_ROOT/packages/pi-eval-kernel/scripts" \
+    "$(dirname "$DEST_DIR")"
+  for support_script in \
+    package-quality-gate.sh \
+    file-budget-audit.mjs \
+    validate-local-package-links.mjs \
+    npm-pack-json.mjs; do
+    cp "$PI_EXTENSIONS_ROOT/scripts/$support_script" "$HOST_ROOT/scripts/$support_script"
+  done
+  chmod +x "$HOST_ROOT/scripts/package-quality-gate.sh"
+  cp \
+    "$PI_EXTENSIONS_ROOT/packages/pi-eval-kernel/scripts/npm-pack-json.mjs" \
+    "$HOST_ROOT/packages/pi-eval-kernel/scripts/npm-pack-json.mjs"
+  git -C "$HOST_ROOT" init -q
+fi
+
 cleanup() {
   if [[ "${KEEP_SMOKE_DIR:-0}" == "1" ]]; then
     echo "Keeping smoke directory: $TMP_DIR"
@@ -68,13 +103,7 @@ copier "${copier_args[@]}" "$TEMPLATE_SRC" "$DEST_DIR"
   cd "$DEST_DIR"
 
   if [[ "$SCAFFOLD_MODE" == "simple-package" ]]; then
-    sibling_gate="$ROOT_DIR/../pi-extensions/scripts/package-quality-gate.sh"
-    canonical_gate="$HOME/ai-society/softwareco/owned/pi-extensions/scripts/package-quality-gate.sh"
-    if [[ -x "$sibling_gate" ]]; then
-      export PACKAGE_QUALITY_GATE_SCRIPT="$sibling_gate"
-    elif [[ -x "$canonical_gate" ]]; then
-      export PACKAGE_QUALITY_GATE_SCRIPT="$canonical_gate"
-    fi
+    export PI_EXTENSIONS_TMPDIR="$TMP_DIR/gate-scratch"
   fi
 
   # Basic structure validation

@@ -4,6 +4,27 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
+if [[ -z "${TMPDIR:-}" ]]; then
+  if [[ "${GITHUB_ACTIONS:-}" == "true" && -n "${RUNNER_TEMP:-}" && -d "${RUNNER_TEMP:-}" ]]; then
+    TMPDIR="$RUNNER_TEMP"
+  else
+    echo "TMPDIR must point to managed disk-backed scratch storage." >&2
+    exit 1
+  fi
+fi
+if [[ ! -d "$TMPDIR" ]]; then
+  echo "TMPDIR does not exist: $TMPDIR" >&2
+  exit 1
+fi
+TMPDIR_RESOLVED="$(node -e 'console.log(require("node:fs").realpathSync(process.argv[1]))' "$TMPDIR")"
+if [[ "$TMPDIR_RESOLVED" == "/tmp" || "$TMPDIR_RESOLVED" == /tmp/* ]]; then
+  echo "TMPDIR must not use /tmp: $TMPDIR" >&2
+  exit 1
+fi
+export TMPDIR
+export TMP="$TMPDIR"
+export TEMP="$TMPDIR"
+
 NAME="$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).name")"
 VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).version")"
 REPOSITORY_URL="$(node -p "(() => { const pkg = JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')); const repo = pkg.repository; if (typeof repo === 'string') return repo.trim(); if (repo && typeof repo === 'object' && typeof repo.url === 'string') return repo.url.trim(); return ''; })()")"
@@ -23,6 +44,7 @@ fi
 echo "== npm pack --dry-run --json"
 PACK_JSON="$(npm pack --dry-run --json)"
 echo "$PACK_JSON"
+PACK_JSON="$(printf '%s' "$PACK_JSON" | node "$ROOT_DIR/scripts/npm-pack-json.mjs")"
 
 PACK_JSON="$PACK_JSON" node <<'NODE'
 const fs = require("node:fs");
@@ -73,8 +95,13 @@ for (const entry of filesEntries) {
 }
 
 const pack = JSON.parse(process.env.PACK_JSON || "[]");
-if (!Array.isArray(pack) || !pack[0] || !Array.isArray(pack[0].files)) {
-  fail("Could not parse npm pack --dry-run --json output.");
+if (!Array.isArray(pack) || pack.length !== 1 || !pack[0] || !Array.isArray(pack[0].files)) {
+  fail("Could not parse normalized npm pack --dry-run --json output.");
+}
+if (pack[0].name !== pkg.name || pack[0].version !== pkg.version) {
+  fail(
+    `Packed identity mismatch: expected ${pkg.name}@${pkg.version}, got ${pack[0].name}@${pack[0].version}`,
+  );
 }
 
 const actual = pack[0].files.map((f) => normalize(String(f.path || ""))).filter(Boolean).sort();
@@ -139,12 +166,16 @@ if [[ "$PUBLISH_DRY_RUN_EXIT" -ne 0 ]]; then
 fi
 
 TEST_AGENT_DIR=""
+TEST_NPM_PREFIX=""
+TEST_NPM_CACHE=""
 TARBALL_PATH=""
 cleanup() {
   if [[ "${KEEP_RELEASE_ARTIFACTS:-0}" != "1" ]]; then
-    if [[ -n "$TEST_AGENT_DIR" && -d "$TEST_AGENT_DIR" ]]; then
-      rm -rf "$TEST_AGENT_DIR"
-    fi
+    for path_to_remove in "$TEST_AGENT_DIR" "$TEST_NPM_PREFIX" "$TEST_NPM_CACHE"; do
+      if [[ -n "$path_to_remove" && -d "$path_to_remove" ]]; then
+        rm -rf "$path_to_remove"
+      fi
+    done
     if [[ -n "$TARBALL_PATH" && -f "$TARBALL_PATH" ]]; then
       rm -f "$TARBALL_PATH"
     fi
@@ -164,35 +195,27 @@ else
     echo "pi CLI not found in PATH." >&2
     exit 1
   fi
-  if [[ ! -f "$HOME/.pi/agent/auth.json" ]]; then
-    echo "Missing $HOME/.pi/agent/auth.json (needed for isolated pi smoke tests)." >&2
-    echo "Tip: set SKIP_PI_SMOKE=1 for artifact-only checks." >&2
-    exit 1
-  fi
 
-  TEST_AGENT_DIR="$(mktemp -d /tmp/pi-extension-release-check-XXXXXX)"
-
-  cp "$HOME/.pi/agent/auth.json" "$TEST_AGENT_DIR/auth.json"
-
-  # Allow override via environment variables for different provider configurations
-  PI_TEST_DEFAULT_PROVIDER="${PI_TEST_DEFAULT_PROVIDER:-openai}"
-  PI_TEST_DEFAULT_MODEL="${PI_TEST_DEFAULT_MODEL:-gpt-4o}"
-  PI_TEST_ENABLED_MODELS="${PI_TEST_ENABLED_MODELS:-[\"openai/gpt-4*\"]}"
-
-  cat > "$TEST_AGENT_DIR/settings.json" <<JSON
+  TEST_AGENT_DIR="$(mktemp -d "$TMPDIR/pi-extension-release-agent.XXXXXX")"
+  TEST_NPM_PREFIX="$(mktemp -d "$TMPDIR/pi-extension-release-npm-prefix.XXXXXX")"
+  TEST_NPM_CACHE="$(mktemp -d "$TMPDIR/pi-extension-release-npm-cache.XXXXXX")"
+  cat > "$TEST_AGENT_DIR/settings.json" <<'JSON'
 {
-  "defaultProvider": "${PI_TEST_DEFAULT_PROVIDER}",
-  "defaultModel": "${PI_TEST_DEFAULT_MODEL}",
-  "enabledModels": ${PI_TEST_ENABLED_MODELS},
-  "extensions": []
+  "extensions": [],
+  "packages": []
 }
 JSON
 
-  echo "== pi install tarball (isolated PI_CODING_AGENT_DIR)"
+  echo "== pi install tarball (isolated Pi and npm roots)"
   PACKAGE_SPEC="npm:$TARBALL_PATH"
-  PI_CODING_AGENT_DIR="$TEST_AGENT_DIR" pi install "$PACKAGE_SPEC"
+  PI_CODING_AGENT_DIR="$TEST_AGENT_DIR" \
+    NPM_CONFIG_PREFIX="$TEST_NPM_PREFIX" \
+    npm_config_prefix="$TEST_NPM_PREFIX" \
+    NPM_CONFIG_CACHE="$TEST_NPM_CACHE" \
+    npm_config_cache="$TEST_NPM_CACHE" \
+    pi install "$PACKAGE_SPEC"
 
-  echo "== verify tarball package recorded in settings"
+  echo "== verify tarball package recorded in isolated settings"
   TEST_AGENT_DIR="$TEST_AGENT_DIR" PACKAGE_SPEC="$PACKAGE_SPEC" node <<'NODE'
 const fs = require("node:fs");
 const path = require("node:path");
@@ -200,21 +223,22 @@ const settingsPath = path.join(process.env.TEST_AGENT_DIR, "settings.json");
 const packageSpec = process.env.PACKAGE_SPEC;
 const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
 const packages = Array.isArray(settings.packages) ? settings.packages : [];
-const found = packages.some((entry) => {
-  if (typeof entry === "string") return entry === packageSpec;
-  if (entry && typeof entry === "object") return entry.source === packageSpec;
-  return false;
-});
-if (!found) {
+if (!packages.some((entry) => entry === packageSpec || entry?.source === packageSpec)) {
   console.error(`Could not find ${packageSpec} in settings.packages`);
   process.exit(1);
 }
-console.log("Tarball package entry present in settings.packages.");
+console.log("Tarball package entry present in isolated settings.");
 NODE
 
   if [[ -x "./scripts/release-smoke.sh" ]]; then
-    echo "== extension-specific smoke checks (scripts/release-smoke.sh)"
-    PI_CODING_AGENT_DIR="$TEST_AGENT_DIR" PACKAGE_SPEC="$PACKAGE_SPEC" bash ./scripts/release-smoke.sh
+    echo "== extension-specific provider-free smoke checks"
+    PI_CODING_AGENT_DIR="$TEST_AGENT_DIR" \
+      NPM_CONFIG_PREFIX="$TEST_NPM_PREFIX" \
+      npm_config_prefix="$TEST_NPM_PREFIX" \
+      NPM_CONFIG_CACHE="$TEST_NPM_CACHE" \
+      npm_config_cache="$TEST_NPM_CACHE" \
+      PACKAGE_SPEC="$PACKAGE_SPEC" \
+      bash ./scripts/release-smoke.sh
   fi
 fi
 

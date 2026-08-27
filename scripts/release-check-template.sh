@@ -4,6 +4,27 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
+if [[ -z "${TMPDIR:-}" ]]; then
+  if [[ "${GITHUB_ACTIONS:-}" == "true" && -n "${RUNNER_TEMP:-}" && -d "${RUNNER_TEMP:-}" ]]; then
+    TMPDIR="$RUNNER_TEMP"
+  else
+    echo "TMPDIR must point to managed disk-backed scratch storage." >&2
+    exit 1
+  fi
+fi
+if [[ ! -d "$TMPDIR" ]]; then
+  echo "TMPDIR does not exist: $TMPDIR" >&2
+  exit 1
+fi
+TMPDIR_RESOLVED="$(node -e 'console.log(require("node:fs").realpathSync(process.argv[1]))' "$TMPDIR")"
+if [[ "$TMPDIR_RESOLVED" == "/tmp" || "$TMPDIR_RESOLVED" == /tmp/* ]]; then
+  echo "TMPDIR must not use /tmp: $TMPDIR" >&2
+  exit 1
+fi
+export TMPDIR
+export TMP="$TMPDIR"
+export TEMP="$TMPDIR"
+
 NAME="$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).name")"
 VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).version")"
 REPOSITORY_URL="$(node -p "(() => { const pkg = JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')); const repo = pkg.repository; if (typeof repo === 'string') return repo.trim(); if (repo && typeof repo === 'object' && typeof repo.url === 'string') return repo.url.trim(); return ''; })()")"
@@ -23,6 +44,7 @@ fi
 echo "== npm pack --dry-run --json"
 PACK_JSON="$(npm pack --dry-run --json)"
 echo "$PACK_JSON"
+PACK_JSON="$(printf '%s' "$PACK_JSON" | node "$ROOT_DIR/scripts/npm-pack-json.mjs")"
 
 PACK_JSON="$PACK_JSON" node <<'NODE'
 const fs = require("node:fs");
@@ -81,8 +103,13 @@ for (const entry of filesEntries) {
 }
 
 const pack = JSON.parse(process.env.PACK_JSON || "[]");
-if (!Array.isArray(pack) || !pack[0] || !Array.isArray(pack[0].files)) {
-  fail("Could not parse npm pack --dry-run --json output.");
+if (!Array.isArray(pack) || pack.length !== 1 || !pack[0] || !Array.isArray(pack[0].files)) {
+  fail("Could not parse normalized npm pack --dry-run --json output.");
+}
+if (pack[0].name !== pkg.name || pack[0].version !== pkg.version) {
+  fail(
+    `Packed identity mismatch: expected ${pkg.name}@${pkg.version}, got ${pack[0].name}@${pack[0].version}`,
+  );
 }
 
 const actual = pack[0].files.map((f) => normalize(String(f.path || ""))).filter(Boolean).sort();
@@ -173,6 +200,38 @@ install_generated_repo_deps() {
   )
 }
 
+resolve_pi_extensions_root() {
+  local configured_root="${PI_EXTENSIONS_ROOT:-}"
+  local sibling_root="$ROOT_DIR/../pi-extensions"
+  local canonical_root="$HOME/ai-society/softwareco/owned/pi-extensions"
+  for candidate in "$configured_root" "$sibling_root" "$canonical_root"; do
+    if [[ -n "$candidate" && -x "$candidate/scripts/package-quality-gate.sh" ]]; then
+      (cd "$candidate" && pwd)
+      return 0
+    fi
+  done
+  echo "full simple-package release smoke requires a pi-extensions owner checkout; set PI_EXTENSIONS_ROOT to its pinned path" >&2
+  return 1
+}
+
+prepare_monorepo_host() {
+  local host_root="$1"
+  local owner_root="$2"
+  mkdir -p "$host_root/scripts" "$host_root/packages/pi-eval-kernel/scripts"
+  for support_script in \
+    package-quality-gate.sh \
+    file-budget-audit.mjs \
+    validate-local-package-links.mjs \
+    npm-pack-json.mjs; do
+    cp "$owner_root/scripts/$support_script" "$host_root/scripts/$support_script"
+  done
+  cp \
+    "$owner_root/packages/pi-eval-kernel/scripts/npm-pack-json.mjs" \
+    "$host_root/packages/pi-eval-kernel/scripts/npm-pack-json.mjs"
+  chmod +x "$host_root/scripts/package-quality-gate.sh"
+  git -C "$host_root" init -q
+}
+
 assert_generated_release_config_mode() {
   local repo_dir="$1"
   local expected_mode="$2"
@@ -215,31 +274,35 @@ else
     exit 1
   fi
 
-  TMP_DIR="$(mktemp -d /tmp/pi-template-release-check-XXXXXX)"
+  TMP_DIR="$(mktemp -d "$TMPDIR/pi-template-release-check.XXXXXX")"
 
   echo "== local CLI generation smoke"
   LOCAL_SMOKE_DIR="$TMP_DIR/local-cli-smoke"
-  node ./bin/new-pi-extension-repo.mjs local-cli-smoke --target-dir "$LOCAL_SMOKE_DIR"
+  node ./bin/new-pi-extension-repo.mjs local-cli-smoke --target-dir "$LOCAL_SMOKE_DIR" --mode standalone-repo
   install_generated_repo_deps "$LOCAL_SMOKE_DIR"
   (
     cd "$LOCAL_SMOKE_DIR"
     npm run check
   )
 
+  PI_EXTENSIONS_OWNER="$(resolve_pi_extensions_root)"
+
   echo "== local CLI simple-package generation smoke"
-  LOCAL_MONO_SMOKE_DIR="$TMP_DIR/local-cli-monorepo-smoke"
+  LOCAL_MONO_HOST="$TMP_DIR/local-cli-monorepo-host"
+  LOCAL_MONO_SMOKE_DIR="$LOCAL_MONO_HOST/packages/local-cli-monorepo-smoke"
+  prepare_monorepo_host "$LOCAL_MONO_HOST" "$PI_EXTENSIONS_OWNER"
   node ./bin/new-pi-extension-repo.mjs local-cli-monorepo-smoke --target-dir "$LOCAL_MONO_SMOKE_DIR" --mode simple-package --workspace-path packages/local-cli-monorepo-smoke --release-component local-cli-monorepo-smoke --monorepo-repo pi-extensions
   assert_generated_release_config_mode "$LOCAL_MONO_SMOKE_DIR" component
   install_generated_repo_deps "$LOCAL_MONO_SMOKE_DIR"
   (
     cd "$LOCAL_MONO_SMOKE_DIR"
-    npm run check
+    PI_EXTENSIONS_TMPDIR="$TMP_DIR/local-cli-monorepo-gate" npm run check
   )
 
   if [[ "${SKIP_PACKAGED_CLI_SMOKE:-0}" != "1" ]]; then
     echo "== packaged CLI generation smoke (npm exec --package <tarball>)"
     PACKAGED_SMOKE_DIR="$TMP_DIR/packaged-cli-smoke"
-    npm exec --yes --package "$TARBALL_PATH" -- new-pi-extension-repo packaged-cli-smoke --target-dir "$PACKAGED_SMOKE_DIR"
+    npm exec --yes --package "$TARBALL_PATH" -- new-pi-extension-repo packaged-cli-smoke --target-dir "$PACKAGED_SMOKE_DIR" --mode standalone-repo
     install_generated_repo_deps "$PACKAGED_SMOKE_DIR"
     (
       cd "$PACKAGED_SMOKE_DIR"
@@ -247,13 +310,15 @@ else
     )
 
     echo "== packaged CLI simple-package generation smoke"
-    PACKAGED_MONO_SMOKE_DIR="$TMP_DIR/packaged-cli-monorepo-smoke"
+    PACKAGED_MONO_HOST="$TMP_DIR/packaged-cli-monorepo-host"
+    PACKAGED_MONO_SMOKE_DIR="$PACKAGED_MONO_HOST/packages/packaged-cli-monorepo-smoke"
+    prepare_monorepo_host "$PACKAGED_MONO_HOST" "$PI_EXTENSIONS_OWNER"
     npm exec --yes --package "$TARBALL_PATH" -- new-pi-extension-repo packaged-cli-monorepo-smoke --target-dir "$PACKAGED_MONO_SMOKE_DIR" --mode simple-package --workspace-path packages/packaged-cli-monorepo-smoke --release-component packaged-cli-monorepo-smoke --monorepo-repo pi-extensions
     assert_generated_release_config_mode "$PACKAGED_MONO_SMOKE_DIR" component
     install_generated_repo_deps "$PACKAGED_MONO_SMOKE_DIR"
     (
       cd "$PACKAGED_MONO_SMOKE_DIR"
-      npm run check
+      PI_EXTENSIONS_TMPDIR="$TMP_DIR/packaged-cli-monorepo-gate" npm run check
     )
   fi
 fi

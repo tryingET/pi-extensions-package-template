@@ -26,9 +26,9 @@
     "bin/new-pi-extension-repo.mjs",
     "bin/npm-bootstrap-publish.mjs",
     "copier-template",
-    "copier-template/.gitignore",
+    "copier-template/.gitignore.jinja",
     "copier-template-monorepo-package",
-    "copier-template-monorepo-package/.gitignore",
+    "copier-template-monorepo-package/.gitignore.jinja",
     "copier.yml",
     "new-pi-extension-repo.sh",
     "README.md",
@@ -42,10 +42,10 @@
     "node": ">=20"
   },
   "scripts": {
-    "quality:pre-commit": "bash ./scripts/template-guardrails.sh",
+    "quality:pre-commit": "node --test ./scripts/npm-pack-json.test.mjs && bash ./scripts/template-guardrails.sh",
     "quality:pre-push": "npm run check:full",
-    "check": "bash ./scripts/template-guardrails.sh",
-    "check:full": "bash ./scripts/template-guardrails.sh && bash ./scripts/smoke-test-template.sh && bash ./scripts/generated-contract-test.sh && bash ./scripts/idempotency-test-template.sh && SCAFFOLD_MODE=simple-package bash ./scripts/smoke-test-template.sh && SCAFFOLD_MODE=simple-package bash ./scripts/generated-contract-test.sh && SCAFFOLD_MODE=simple-package bash ./scripts/idempotency-test-template.sh",
+    "check": "node --test ./scripts/npm-pack-json.test.mjs && bash ./scripts/template-guardrails.sh",
+    "check:full": "node --test ./scripts/npm-pack-json.test.mjs && bash ./scripts/template-guardrails.sh && bash ./scripts/smoke-test-template.sh && bash ./scripts/generated-contract-test.sh && bash ./scripts/idempotency-test-template.sh && SCAFFOLD_MODE=simple-package bash ./scripts/smoke-test-template.sh && SCAFFOLD_MODE=simple-package bash ./scripts/generated-contract-test.sh && SCAFFOLD_MODE=simple-package bash ./scripts/idempotency-test-template.sh",
     "check:pinned": "bash ./scripts/check-pinned-deps.sh",
     "release:check": "bash ./scripts/release-check-template.sh",
     "release:check:quick": "SKIP_COPIER_SMOKE=1 bash ./scripts/release-check-template.sh"

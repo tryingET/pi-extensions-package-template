@@ -21,6 +21,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Check out pinned pi-extensions validation owner
+        uses: actions/checkout@v6
+        with:
+          repository: tryingET/pi-extensions
+          ref: e855d07799f7984770d8a7ce25fc8ebabe1b7e64
+          path: .owner/pi-extensions
+
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -53,6 +60,7 @@ jobs:
           KEEP_SMOKE_DIR: "1"
           SCAFFOLD_MODE: "monorepo-package"
           TMPDIR: ${{ github.workspace }}/.artifacts/smoke/tmp
+          PI_EXTENSIONS_ROOT: ${{ github.workspace }}/.owner/pi-extensions
         run: |
           set -o pipefail
           bash ./scripts/smoke-test-template.sh 2>&1 | tee .artifacts/smoke/smoke-monorepo.log

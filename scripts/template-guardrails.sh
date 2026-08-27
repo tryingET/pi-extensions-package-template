@@ -40,6 +40,13 @@ required_root_files=(
   "bin/new-pi-extension-repo.mjs"
   "bin/npm-bootstrap-publish.mjs"
   "scripts/release-check-template.sh"
+  "scripts/npm-pack-json.mjs"
+  "scripts/npm-pack-json.test.mjs"
+  "copier-template/scripts/npm-pack-json.mjs"
+  "copier-template/scripts/release-check.sh"
+  "copier-template/.gitignore.jinja"
+  "copier-template-monorepo-package/scripts/release-check.sh"
+  "copier-template-monorepo-package/.gitignore.jinja"
   "copier-template/README.md.jinja"
   "copier-template-monorepo-package/README.md.jinja"
   "contract/generated-repo.contract.json"
@@ -56,6 +63,8 @@ required_executables=(
   "bin/new-pi-extension-repo.mjs"
   "bin/npm-bootstrap-publish.mjs"
   "scripts/release-check-template.sh"
+  "scripts/npm-pack-json.mjs"
+  "copier-template/scripts/npm-pack-json.mjs"
 )
 
 for executable in "${required_executables[@]}"; do
@@ -64,13 +73,58 @@ for executable in "${required_executables[@]}"; do
   fi
 done
 
+if [[ -f scripts/npm-pack-json.mjs && -f copier-template/scripts/npm-pack-json.mjs ]] &&
+  ! cmp -s scripts/npm-pack-json.mjs copier-template/scripts/npm-pack-json.mjs; then
+  fail "Standalone generated npm pack normalizer must match the template-owned parser exactly."
+fi
+
+release_check_surfaces=(
+  "scripts/release-check-template.sh"
+  "copier-template/scripts/release-check.sh"
+  "copier-template-monorepo-package/scripts/release-check.sh"
+)
+for release_check in "${release_check_surfaces[@]}"; do
+  if [[ ! -f "$release_check" ]]; then
+    continue
+  fi
+  if ! grep -q 'npm-pack-json\.mjs' "$release_check"; then
+    fail "$release_check must normalize npm pack JSON before parsing."
+  fi
+  if grep -q 'cp "\$HOME/.pi/agent/auth.json"' "$release_check"; then
+    fail "$release_check must not copy operator credentials into release scratch."
+  fi
+  if grep -qE 'mktemp -d /tmp/' "$release_check"; then
+    fail "$release_check must honor managed TMPDIR instead of hard-coded /tmp."
+  fi
+  if ! grep -q 'export TMPDIR' "$release_check"; then
+    fail "$release_check must export managed TMPDIR to child processes."
+  fi
+done
+
 if [[ ! -f .gitignore ]] || ! grep -q '^\*\.tgz$' .gitignore; then
   fail ".gitignore must include '*.tgz'"
+fi
+
+if ! grep -q '^\.owner/$' .gitignore; then
+  fail ".gitignore must exclude pinned CI owner checkouts under .owner/"
 fi
 
 if ! grep -q "npm run release:check:quick" ".github/workflows/release-check.yml"; then
   fail "release-check workflow must run npm run release:check:quick"
 fi
+
+for npm_version in 11.13.0 12.0.2; do
+  if ! grep -q "\"$npm_version\"" ".github/workflows/release-check.yml"; then
+    fail "release-check workflow must exercise npm $npm_version"
+  fi
+done
+
+pinned_pi_extensions_ref="e855d07799f7984770d8a7ce25fc8ebabe1b7e64"
+for workflow in .github/workflows/template-guardrails.yml .github/workflows/publish.yml; do
+  if ! grep -q "$pinned_pi_extensions_ref" "$workflow"; then
+    fail "$workflow must pin the pi-extensions validation owner to $pinned_pi_extensions_ref"
+  fi
+done
 
 if ! grep -q "npm run release:check" ".github/workflows/publish.yml"; then
   fail "publish workflow must run npm run release:check"
@@ -115,10 +169,10 @@ try {
   }
 
   const requiredScripts = {
-    "quality:pre-commit": "bash ./scripts/template-guardrails.sh",
+    "quality:pre-commit": "node --test ./scripts/npm-pack-json.test.mjs && bash ./scripts/template-guardrails.sh",
     "quality:pre-push": "npm run check:full",
-    check: "bash ./scripts/template-guardrails.sh",
-    "check:full": "bash ./scripts/template-guardrails.sh && bash ./scripts/smoke-test-template.sh && bash ./scripts/generated-contract-test.sh && bash ./scripts/idempotency-test-template.sh && SCAFFOLD_MODE=simple-package bash ./scripts/smoke-test-template.sh && SCAFFOLD_MODE=simple-package bash ./scripts/generated-contract-test.sh && SCAFFOLD_MODE=simple-package bash ./scripts/idempotency-test-template.sh",
+    check: "node --test ./scripts/npm-pack-json.test.mjs && bash ./scripts/template-guardrails.sh",
+    "check:full": "node --test ./scripts/npm-pack-json.test.mjs && bash ./scripts/template-guardrails.sh && bash ./scripts/smoke-test-template.sh && bash ./scripts/generated-contract-test.sh && bash ./scripts/idempotency-test-template.sh && SCAFFOLD_MODE=simple-package bash ./scripts/smoke-test-template.sh && SCAFFOLD_MODE=simple-package bash ./scripts/generated-contract-test.sh && SCAFFOLD_MODE=simple-package bash ./scripts/idempotency-test-template.sh",
     "release:check": "bash ./scripts/release-check-template.sh",
     "release:check:quick": "SKIP_COPIER_SMOKE=1 bash ./scripts/release-check-template.sh",
   };
@@ -147,9 +201,9 @@ try {
       "bin/new-pi-extension-repo.mjs",
       "bin/npm-bootstrap-publish.mjs",
       "copier-template",
-      "copier-template/.gitignore",
+      "copier-template/.gitignore.jinja",
       "copier-template-monorepo-package",
-      "copier-template-monorepo-package/.gitignore",
+      "copier-template-monorepo-package/.gitignore.jinja",
       "copier.yml",
       "new-pi-extension-repo.sh",
       "README.md",

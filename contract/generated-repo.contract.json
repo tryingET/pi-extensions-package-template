@@ -23,6 +23,7 @@
     "docs/adr/.gitkeep",
     "policy/engineering-lane.json",
     "scripts/release-check.sh",
+    "scripts/npm-pack-json.mjs",
     "scripts/validate-structure.sh",
     "scripts/validate-structure.mjs",
     "scripts/quality-gate.sh",

@@ -114,8 +114,8 @@ npm run release:check
 npm run release:check:quick
 ```
 
-Optional: add an executable `scripts/release-smoke.sh` for extension-specific smoke checks.
-`release-check.sh` will run it with isolated `PI_CODING_AGENT_DIR` and `PACKAGE_SPEC` env vars.
+Optional: add an executable `scripts/release-smoke.sh` for extension-specific, provider-free smoke checks.
+`release-check.sh` runs it with isolated `PI_CODING_AGENT_DIR`, npm prefix/cache, `TMPDIR`, and `PACKAGE_SPEC` env vars. The generic harness never copies operator credentials; a package requiring an authenticated external smoke must define and govern that separate release surface explicitly.
 
 Before first production release:
 
