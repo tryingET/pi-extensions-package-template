@@ -85,8 +85,10 @@ fixture_npm_isolation_cleanup() {
     echo "npm fixture isolation is not prepared for: $fixture_root" >&2
     return 1
   fi
-  if ! grep -q '^# Managed by pi-extensions-template fixture isolation; never generated\.$' "$fixture_root/.npmrc"; then
-    echo "Refusing to remove unrecognized fixture npm config: $fixture_root/.npmrc" >&2
+  local expected_config
+  expected_config=$'# Managed by pi-extensions-template fixture isolation; never generated.\nmin-release-age=0\n'
+  if [[ ! -f "$fixture_root/.npmrc" ]] || [[ "$(cat "$fixture_root/.npmrc")"$'\n' != "$expected_config" ]]; then
+    echo "Refusing to remove modified or unrecognized fixture npm config: $fixture_root/.npmrc" >&2
     return 1
   fi
 
