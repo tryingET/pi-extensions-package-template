@@ -38,12 +38,16 @@ pi install npm:@{{ npm_org }}/{{ repo_name }}
 
 2. Pi auto-discovers extensions when working in this directory.
 
-## Runtime dependencies
+## Pi host contract
 
-This extension expects pi host runtime APIs and declares them as `peerDependencies`:
+Package release identity and Pi host compatibility are separate contracts:
 
-- `@earendil-works/pi-coding-agent`
-- `@earendil-works/pi-ai`
+- package version: `package.json#version` (initially `0.1.0`, advanced by this package's release flow)
+- host baseline: Pi `0.84.3`
+- development test floor: exact `0.84.3` dev dependencies for `@earendil-works/pi-coding-agent` and `@earendil-works/pi-ai`
+- peer compatibility: `*` for those Earendil Works packages; these are host-provided compatibility declarations, while `0.84.3` is the tested development baseline
+
+The machine-checkable provenance is `package.json#x-pi-template.piHostContract`; [tests/pi-host-contract.test.mjs](tests/pi-host-contract.test.mjs) keeps the metadata, exact development installs, peer ranges, and imports aligned. A host upgrade must update that contract and its test together, rather than changing an ungoverned pin.
 
 When using UI APIs (`ctx.ui`), guard interactive-only behavior with `ctx.hasUI` so `pi -p` non-interactive runs stay stable.
 
@@ -56,7 +60,7 @@ npm run check
 ```
 
 `check` routes to `quality:ci` via [scripts/quality-gate.sh](scripts/quality-gate.sh).
-It enforces structure validation, Biome lint checks, optional TypeScript typechecks, and npm pack dry-run.
+It enforces structure validation, Biome lint checks, strict TypeScript typechecks, and npm pack dry-run.
 
 ## Quality gate lane (TS)
 

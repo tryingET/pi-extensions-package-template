@@ -8,6 +8,8 @@
     "biome.jsonc",
     ".vscode/settings.json",
     "package.json",
+    "tests/pi-host-contract.test.mjs",
+    "tsconfig.json",
     "extensions/{{command_name}}.ts",
     ".github/workflows/ci.yml",
     ".github/workflows/release-check.yml",

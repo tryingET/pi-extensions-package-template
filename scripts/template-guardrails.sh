@@ -41,6 +41,9 @@ required_root_files=(
   "bin/npm-bootstrap-publish.mjs"
   "scripts/release-check-template.sh"
   "scripts/npm-pack-json.mjs"
+  "scripts/fixture-npm-isolation.sh"
+  "scripts/fixture-npm-isolation.test.sh"
+  "scripts/pi-host-contract-parity.mjs"
   "scripts/npm-pack-json.test.mjs"
   "copier-template/scripts/npm-pack-json.mjs"
   "copier-template/scripts/release-check.sh"
@@ -51,6 +54,11 @@ required_root_files=(
   "copier-template-monorepo-package/README.md.jinja"
   "contract/generated-repo.contract.json"
   "contract/generated-monorepo-package.contract.json"
+  "contract/pi-host-contract.json"
+  "copier-template/tsconfig.json"
+  "copier-template/tests/pi-host-contract.test.mjs"
+  "copier-template-monorepo-package/tsconfig.json"
+  "copier-template-monorepo-package/tests/pi-host-contract.test.mjs"
 )
 
 for required_file in "${required_root_files[@]}"; do
@@ -64,6 +72,9 @@ required_executables=(
   "bin/npm-bootstrap-publish.mjs"
   "scripts/release-check-template.sh"
   "scripts/npm-pack-json.mjs"
+  "scripts/fixture-npm-isolation.sh"
+  "scripts/fixture-npm-isolation.test.sh"
+  "scripts/pi-host-contract-parity.mjs"
   "copier-template/scripts/npm-pack-json.mjs"
 )
 
@@ -105,6 +116,21 @@ for release_check in "${release_check_surfaces[@]}"; do
     fi
   done
 done
+
+bash ./scripts/fixture-npm-isolation.test.sh || fail "Fixture npm isolation regression failed."
+node ./scripts/pi-host-contract-parity.mjs || fail "Pi host canonical/parity guard failed."
+for fixture_script in scripts/smoke-test-template.sh scripts/idempotency-test-template.sh; do
+  for helper_call in fixture_npm_isolation_prepare fixture_npm_isolation_run; do
+    if ! grep -q "$helper_call" "$fixture_script"; then
+      fail "$fixture_script must use $helper_call for fixture installs."
+    fi
+  done
+done
+cleanup_line="$(grep -n -m1 'fixture_npm_isolation_cleanup' scripts/idempotency-test-template.sh | cut -d: -f1)"
+baseline_line="$(grep -n -m1 'git add -A' scripts/idempotency-test-template.sh | cut -d: -f1)"
+if [[ -z "$cleanup_line" || -z "$baseline_line" || "$cleanup_line" -ge "$baseline_line" ]]; then
+  fail "Idempotency fixture npm config must be removed before the baseline is staged."
+fi
 
 if grep -R -n --include='*.jinja' '@mariozechner/' copier-template copier-template-monorepo-package >/dev/null; then
   fail "Generated template sources must use @earendil-works Pi package ownership, not @mariozechner."

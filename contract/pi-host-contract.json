@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "source": "@tryinget/pi-extensions-package-template",
+  "packageVersionSource": "package.json#version",
+  "hostBaseline": "0.84.3",
+  "devTestFloor": "0.84.3",
+  "typescript": "6.0.3",
+  "peerCompatibility": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-ai": "*"
+  }
+}

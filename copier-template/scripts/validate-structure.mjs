@@ -132,6 +132,94 @@ function validateBiomeIgnoreGovernance(rootDir) {
   walk(rootDir);
 }
 
+const PI_HOST_BASELINE = "0.84.3";
+const PI_DEV_TEST_FLOOR = "0.84.3";
+const PI_TEMPLATE_SOURCE = "@tryinget/pi-extensions-package-template";
+const PI_HOST_PACKAGES = ["@earendil-works/pi-coding-agent", "@earendil-works/pi-ai"];
+const PI_DEPENDENCY_SECTIONS = [
+  "dependencies",
+  "devDependencies",
+  "optionalDependencies",
+  "peerDependencies",
+];
+
+function validatePiHostContract(p) {
+  const templateMeta = p["x-pi-template"];
+  const contract = templateMeta?.piHostContract;
+
+  if (!templateMeta || typeof templateMeta !== "object") {
+    fail("package.json must include x-pi-template provenance metadata");
+    return;
+  }
+  if (!contract || typeof contract !== "object") {
+    fail("package.json x-pi-template.piHostContract must be an object");
+    return;
+  }
+  if (contract.schemaVersion !== 1) {
+    fail("package.json x-pi-template.piHostContract.schemaVersion must be 1");
+  }
+  if (contract.source !== PI_TEMPLATE_SOURCE) {
+    fail(`package.json Pi host contract source must be '${PI_TEMPLATE_SOURCE}'`);
+  }
+  if (contract.packageVersionSource !== "package.json#version") {
+    fail(
+      "package.json Pi host contract must identify package.json#version as the independent package version source",
+    );
+  }
+  if (contract.hostBaseline !== PI_HOST_BASELINE) {
+    fail(`package.json Pi host baseline must be '${PI_HOST_BASELINE}'`);
+  }
+  if (contract.devTestFloor !== PI_DEV_TEST_FLOOR) {
+    fail(`package.json Pi development test floor must be '${PI_DEV_TEST_FLOOR}'`);
+  }
+
+  const governed = new Set(PI_HOST_PACKAGES);
+  for (const packageName of PI_HOST_PACKAGES) {
+    if (p.devDependencies?.[packageName] !== PI_DEV_TEST_FLOOR) {
+      fail(
+        `package.json devDependencies.${packageName} must equal Pi development test floor '${PI_DEV_TEST_FLOOR}'`,
+      );
+    }
+    if (contract.peerCompatibility?.[packageName] !== "*") {
+      fail(`package.json Pi peer compatibility for ${packageName} must be '*'`);
+    }
+    if (p.peerDependencies?.[packageName] !== contract.peerCompatibility?.[packageName]) {
+      fail(
+        `package.json peerDependencies.${packageName} must match x-pi-template.piHostContract.peerCompatibility`,
+      );
+    }
+  }
+
+  for (const section of PI_DEPENDENCY_SECTIONS) {
+    for (const [name, specifier] of Object.entries(p[section] ?? {})) {
+      if (/^@mariozechner\/pi-/.test(name) || /^npm:@mariozechner\/pi-/.test(String(specifier))) {
+        fail(`package.json ${section}.${name} must not use or alias the legacy Pi namespace`);
+      }
+      if (/^@earendil-works\/pi-/.test(name)) {
+        if (!governed.has(name)) {
+          fail(`package.json ${section}.${name} is outside x-pi-template.piHostContract`);
+        } else if (section !== "devDependencies" && section !== "peerDependencies") {
+          fail(
+            `package.json ${section}.${name} must be a governed development pin or compatibility peer`,
+          );
+        }
+      }
+    }
+  }
+
+  if (p.devDependencies?.typescript !== "6.0.3") {
+    fail(
+      "package.json devDependencies.typescript must be pinned to 6.0.3 for generated typechecks",
+    );
+  }
+  if (!fs.existsSync("tsconfig.json")) {
+    fail("Generated package must include tsconfig.json");
+  }
+  if (!fs.existsSync("tests/pi-host-contract.test.mjs")) {
+    fail("Generated package must include tests/pi-host-contract.test.mjs");
+  }
+}
+
 function validatePackageJson() {
   const p = readJsonSafe("package.json");
   if (!p) {
@@ -140,6 +228,7 @@ function validatePackageJson() {
   }
 
   validateScopedPackageName(p);
+  validatePiHostContract(p);
 
   if (!Array.isArray(p.keywords) || !p.keywords.includes("pi-package")) {
     fail("package.json missing keywords entry: pi-package");

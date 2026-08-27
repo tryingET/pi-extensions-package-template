@@ -46,6 +46,7 @@ Repo-local emphasis:
 - Release baseline: release-please + `npm run release:check` + npm trusted publishing.
 - Keep package artifacts deterministic via `package.json` `files` allowlist.
 - Lint/format baseline: Biome config in `biome.jsonc` + pinned local `@biomejs/biome` dev dependency.
+- Compile boundary: `tsconfig.json` + pinned TypeScript; Pi host API types come from exact Earendil Works development pins governed by `x-pi-template.piHostContract`.
 - Biome path strategy: lint repo files by default, but exclude artifact/vendor buckets (`external/`, `ontology/`, build outputs, generated/minified files).
 - Quality lane gate: `npm run quality:pre-commit`, `npm run quality:pre-push`, `npm run quality:ci`.
 - Auto-fix workflow: `npm run fix` (before commit or when applying AI-generated diffs).

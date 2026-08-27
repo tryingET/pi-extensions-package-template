@@ -2,6 +2,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=fixture-npm-isolation.sh
+source "$ROOT_DIR/scripts/fixture-npm-isolation.sh"
 TEMPLATE_SRC="${1:-$ROOT_DIR}"
 REPO_NAME="${SMOKE_REPO_NAME:-template-smoke}"
 COMMAND_NAME="${SMOKE_COMMAND_NAME:-template-smoke}"
@@ -98,6 +100,7 @@ if [[ -n "$TEMPLATE_REF" ]]; then
 fi
 
 copier "${copier_args[@]}" "$TEMPLATE_SRC" "$DEST_DIR"
+fixture_npm_isolation_prepare "$DEST_DIR" "$TMP_DIR"
 
 (
   cd "$DEST_DIR"
@@ -185,13 +188,13 @@ console.log("Structure validation passed");
 NODE
 
   if [[ -f package-lock.json ]]; then
-    npm ci
+    fixture_npm_isolation_run "$DEST_DIR" npm ci
   else
-    npm install --package-lock-only --ignore-scripts
-    npm ci
+    fixture_npm_isolation_run "$DEST_DIR" npm install --package-lock-only --ignore-scripts
+    fixture_npm_isolation_run "$DEST_DIR" npm ci
   fi
 
-  npm run check
+  fixture_npm_isolation_run "$DEST_DIR" npm run check
 )
 
 echo "Smoke test passed: $DEST_DIR"

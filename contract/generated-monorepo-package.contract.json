@@ -9,6 +9,8 @@
     "biome.jsonc",
     ".vscode/settings.json",
     "package.json",
+    "tests/pi-host-contract.test.mjs",
+    "tsconfig.json",
     "extensions/{{command_name}}.ts",
     "docs/org/operating_model.md",
     "docs/project/foundation.md",
