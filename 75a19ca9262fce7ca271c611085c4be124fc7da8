@@ -1,0 +1,47 @@
+kind: "ai-society/commit-provenance/v1"
+tool: "/commit"
+actor: "tryinget"
+repo: "/home/tryinget/ai-society/softwareco/owned/pi-extensions-template"
+commit: "75a19ca9262fce7ca271c611085c4be124fc7da8"
+created_at: "2026-08-27T09:44:39Z"
+intent: "Make template and generated release checks npm 11/12 compatible, credential-safe, scratch-safe, and topology-truthful"
+files:
+  - ".github/workflows/publish.yml"
+  - ".github/workflows/release-check.yml"
+  - ".github/workflows/template-guardrails.yml"
+  - ".gitignore"
+  - "contract/generated-repo.contract.json"
+  - "copier-template-monorepo-package/.gitignore"
+  - "copier-template-monorepo-package/.gitignore.jinja"
+  - "copier-template-monorepo-package/scripts/release-check.sh"
+  - "copier-template/.gitignore"
+  - "copier-template/.gitignore.jinja"
+  - "copier-template/README.md.jinja"
+  - "copier-template/scripts/npm-pack-json.mjs"
+  - "copier-template/scripts/release-check.sh"
+  - "package.json"
+  - "scripts/npm-pack-json.mjs"
+  - "scripts/npm-pack-json.test.mjs"
+  - "scripts/release-check-template.sh"
+  - "scripts/smoke-test-template.sh"
+  - "scripts/template-guardrails.sh"
+validation:
+  fast_gate:
+    command: "npm run quality:pre-commit"
+    status: "pass"
+  full_gate:
+    command: "npm run quality:pre-push"
+    status: "pending"
+group:
+  index: 1
+  total: 1
+  rationale: "The template source, generated release surfaces, CI matrix, and truthful host topology form one release contract."
+links:
+  task_ids:
+    - 5112
+    - 5114
+    - 5115
+    - 5116
+    - 5117
+    - 5118
+    - 5119
