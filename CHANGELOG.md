@@ -11,6 +11,27 @@ type: "reference"
 > Historical entries before that transition still reference `pi-extensions-template_copier`.
 
 
+## [0.6.0](https://github.com/tryingET/pi-extensions-package-template/compare/v0.5.1...v0.6.0) (2026-08-27)
+
+
+### Features
+
+* adopt engineering-core package contract ([6abc591](https://github.com/tryingET/pi-extensions-package-template/commit/6abc59190aea6ca6821f41d5dbf789f102cc008a))
+* **template:** adopt simple-package as canonical scaffold mode ([7931a87](https://github.com/tryingET/pi-extensions-package-template/commit/7931a876e01a7240e21b808a5f32da9e127c01ac))
+* **template:** enforce canonical Pi host baseline ([1b735fd](https://github.com/tryingET/pi-extensions-package-template/commit/1b735fdaff8d3a3cdc3f855c4b8f4a42c0b2cc3f))
+* **template:** rename package template identity ([9147080](https://github.com/tryingET/pi-extensions-package-template/commit/9147080fd580c1a7bfae987605eb47027425f102))
+* **template:** restore l3 lineage and package-first docs ([101acb7](https://github.com/tryingET/pi-extensions-package-template/commit/101acb7d0decb02959d62919b65108eabe2c7cdb))
+
+
+### Bug Fixes
+
+* **ci:** provide managed template guardrail scratch ([fa3e10d](https://github.com/tryingET/pi-extensions-package-template/commit/fa3e10dd5586c3d882253b073b634f12c84b02b5))
+* **ci:** scope runner temp to guardrail step ([8bcc39a](https://github.com/tryingET/pi-extensions-package-template/commit/8bcc39a85a62b6b8dc4b96e5879f79b4e97d8192))
+* **ci:** support isolated monorepo package gate validation ([4ae4d04](https://github.com/tryingET/pi-extensions-package-template/commit/4ae4d041da0dcfe3a34361e31588e44da35db69f))
+* **release:** harden generated package validation ([75a19ca](https://github.com/tryingET/pi-extensions-package-template/commit/75a19ca9262fce7ca271c611085c4be124fc7da8))
+* **release:** use current Pi ownership and isolation ([6d385a3](https://github.com/tryingET/pi-extensions-package-template/commit/6d385a36a62f1df4d37371184a4374348b13ab1b))
+* **test:** compare fixture npm config byte-exactly ([b551ac7](https://github.com/tryingET/pi-extensions-package-template/commit/b551ac71a35169b835350b8731ab1d0d9bdbe799))
+
 ## [0.5.1](https://github.com/tryingET/pi-extensions-template_copier/compare/v0.5.0...v0.5.1) (2026-02-27)
 
 ### Bug Fixes
