@@ -61,6 +61,16 @@ fixture_npm_isolation_run "$FIXTURE_ROOT" node -e '
 [[ ! -e "$FIXTURE_NPM_HOME/.npmrc" ]]
 ! grep -Eq 'authToken|ambient|before=2030|min-release-age=7' "$FIXTURE_ROOT/.npmrc"
 
+printf '\n' >>"$FIXTURE_ROOT/.npmrc"
+if fixture_npm_isolation_cleanup "$FIXTURE_ROOT" 2>/dev/null; then
+  echo "fixture npm cleanup accepted trailing-byte drift" >&2
+  exit 1
+fi
+cat >"$FIXTURE_ROOT/.npmrc" <<'NPMRC'
+# Managed by pi-extensions-template fixture isolation; never generated.
+min-release-age=0
+NPMRC
+
 printf '# unexpected drift\n' >>"$FIXTURE_ROOT/.npmrc"
 if fixture_npm_isolation_cleanup "$FIXTURE_ROOT" 2>/dev/null; then
   echo "fixture npm cleanup accepted modified config" >&2

@@ -87,7 +87,7 @@ fixture_npm_isolation_cleanup() {
   fi
   local expected_config
   expected_config=$'# Managed by pi-extensions-template fixture isolation; never generated.\nmin-release-age=0\n'
-  if [[ ! -f "$fixture_root/.npmrc" ]] || [[ "$(cat "$fixture_root/.npmrc")"$'\n' != "$expected_config" ]]; then
+  if [[ ! -f "$fixture_root/.npmrc" ]] || ! cmp -s "$fixture_root/.npmrc" <(printf '%s' "$expected_config"); then
     echo "Refusing to remove modified or unrecognized fixture npm config: $fixture_root/.npmrc" >&2
     return 1
   fi
