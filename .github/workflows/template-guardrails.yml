@@ -8,13 +8,13 @@ on:
 jobs:
   guardrails:
     runs-on: ubuntu-latest
-    env:
-      TMPDIR: ${{ runner.temp }}
     steps:
       - uses: actions/checkout@v6
 
       - name: Enforce template-source invariants
         shell: bash
+        env:
+          TMPDIR: ${{ runner.temp }}
         run: bash ./scripts/template-guardrails.sh
 
   smoke-test:
