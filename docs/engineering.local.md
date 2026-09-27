@@ -10,17 +10,18 @@ type: "reference"
 
 ## Upstream owner
 
-Shared engineering lane and discipline guidance comes from `/home/tryinget/ai-society/core/engineering-core`.
+Shared engineering lane and discipline guidance comes from `https://github.com/tryingET/core_engineering-core`.
 This file records the repo-local selected subset for pi-extensions-template, a template repo for Pi extension packages. The repo `AGENTS.md` remains the operating authority for repo-specific workflow, source-owner boundaries, and read order.
 
-Machine-readable selection lives in `policy/engineering-lane.json`.
+- Release pin: `v0.12.0` (`3fc8387274dddccbae3d7fab80954ad483c9b681`)
+- Machine-readable selection lives in `policy/engineering-lane.json`.
 
 ## Selected lanes
 
 - `pi-ts`
 
 ```bash
-uv tool -n run --from ~/ai-society/core/engineering-core engineering-core show pi-ts
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@3fc8387274dddccbae3d7fab80954ad483c9b681' engineering-core show pi-ts
 ```
 
 ## Selected disciplines
@@ -36,9 +37,9 @@ uv tool -n run --from ~/ai-society/core/engineering-core engineering-core show p
 Catalog/list commands:
 
 ```bash
-uv tool -n run --from ~/ai-society/core/engineering-core engineering-core catalog --pretty
-uv tool -n run --from ~/ai-society/core/engineering-core engineering-core list-disciplines
-uv tool -n run --from ~/ai-society/core/engineering-core engineering-core list-templates
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@3fc8387274dddccbae3d7fab80954ad483c9b681' engineering-core catalog --pretty
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@3fc8387274dddccbae3d7fab80954ad483c9b681' engineering-core list-disciplines
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@3fc8387274dddccbae3d7fab80954ad483c9b681' engineering-core list-templates
 ```
 
 ## Repo-local deviations and emphasis
@@ -47,6 +48,7 @@ uv tool -n run --from ~/ai-society/core/engineering-core engineering-core list-t
 - Keep package/app-local validation and release behavior in the owning package or app surface.
 - Treat this file as a selector and override note, not a replacement for `AGENTS.md` or runtime task/evidence authority.
 - When local practice intentionally diverges from engineering-core guidance, record the reason here or in the owning project/decision document.
+- **Generated TypeScript toolchain remains on host contract 6.0.3.** Both Copier package variants require the Pi-host parity contract (`contract/pi-host-contract.json` and generated `validate-structure.mjs`) and pin TypeScript 6.0.3. Replacing that version with TypeScript 7 changes the generated downstream packages and their host-compatibility contract; this root engineering-core guidance pin move does not authorize that product/template migration. Generated package policies are distinct template output and are not claimed as upgraded by this root repo pin.
 
 ## Canonical local commands
 
