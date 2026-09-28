@@ -2,4 +2,6 @@ node_modules/
 *.tgz
 .artifacts/
 .owner/
-ontology/dist/
+# ROCS generated outputs: validate/build rewrite ontology/dist (including
+# authority receipts); `./scripts/rocs.sh cleanup --repo .` removes them.
+/ontology/dist/

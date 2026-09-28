@@ -10,23 +10,16 @@ cd "$repo_root"
 
 
 if [ -x "./scripts/rocs.sh" ] && [ -f "./ontology/manifest.yaml" ]; then
-  workspace_root_default="$(CDPATH= cd -- "$repo_root/../../.." && pwd)"
-  workspace_root="${ROCS_WORKSPACE_ROOT:-$workspace_root_default}"
-  workspace_ref_mode="${ROCS_WORKSPACE_REF_MODE:-loose}"
-  core_rocs_default="$workspace_root/core/rocs-cli/.venv/bin/rocs"
-  rocs_bin="${ROCS_BIN:-}"
-
-  if [ -z "$rocs_bin" ] && [ -x "$core_rocs_default" ]; then
-    rocs_bin="$core_rocs_default"
-  fi
-
-  if [ -n "$rocs_bin" ]; then
-    ROCS_BIN="$rocs_bin" ROCS_WORKSPACE_ROOT="$workspace_root" ROCS_WORKSPACE_REF_MODE="$workspace_ref_mode" ./scripts/rocs.sh version
-    ROCS_BIN="$rocs_bin" ROCS_WORKSPACE_ROOT="$workspace_root" ROCS_WORKSPACE_REF_MODE="$workspace_ref_mode" ./scripts/rocs.sh build --repo . --resolve-refs --clean
-    ROCS_BIN="$rocs_bin" ROCS_WORKSPACE_ROOT="$workspace_root" ROCS_WORKSPACE_REF_MODE="$workspace_ref_mode" ./scripts/rocs.sh validate --repo . --resolve-refs
-  else
-    ROCS_WORKSPACE_ROOT="$workspace_root" ROCS_WORKSPACE_REF_MODE="$workspace_ref_mode" ./scripts/rocs.sh version
-    ROCS_WORKSPACE_ROOT="$workspace_root" ROCS_WORKSPACE_REF_MODE="$workspace_ref_mode" ./scripts/rocs.sh build --repo . --resolve-refs --clean
-    ROCS_WORKSPACE_ROOT="$workspace_root" ROCS_WORKSPACE_REF_MODE="$workspace_ref_mode" ./scripts/rocs.sh validate --repo . --resolve-refs
-  fi
+  ./scripts/rocs.sh version
+  # Managed ROCS gate: cleanup -> validate -> build (validate before build; never wipe ontology/dist first).
+  # The sealed launcher resolves <repo:...@ref> layers from the enclosing workspace by default.
+  rocs_ref_mode_args=""
+  case "${ROCS_CI_PROFILE:-}" in
+  main-strict | branch-ci) rocs_ref_mode_args="--workspace-ref-mode strict" ;;
+  esac
+  ./scripts/rocs.sh cleanup --repo .
+  # shellcheck disable=SC2086
+  ./scripts/rocs.sh validate --repo . $rocs_ref_mode_args
+  # shellcheck disable=SC2086
+  ./scripts/rocs.sh build --repo . $rocs_ref_mode_args
 fi
