@@ -1,6 +1,6 @@
 {
   "name": "@tryinget/pi-extensions-package-template",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Copier template + CLI for bootstrapping production-ready pi extension packages inside a monorepo",
   "type": "module",
   "license": "MIT",
